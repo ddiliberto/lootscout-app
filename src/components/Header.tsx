@@ -18,9 +18,6 @@ export function Header() {
         <Button variant="ghost" className="text-sm" asChild>
           <Link href="/pricing">Pricing</Link>
         </Button>
-        <Button variant="ghost" className="text-sm" asChild>
-          <Link href="/community">Community</Link>
-        </Button>
         
         {isAuthenticated ? (
           <>

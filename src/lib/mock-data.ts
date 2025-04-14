@@ -263,19 +263,3 @@ export const sourceFilters = [
 
 // Trending products for homepage
 export const trendingProducts: Product[] = mockProducts.slice(0, 2);
-
-// Community picks
-export const communityPicks = [
-  { name: "mika's picks", image: "https://via.placeholder.com/300x300?text=Mika" },
-  { name: "susan's picks", image: "https://via.placeholder.com/300x300?text=Susan" },
-  { name: "fuad's picks", image: "https://via.placeholder.com/300x300?text=Fuad" },
-  { name: "alex's picks", image: "https://via.placeholder.com/300x300?text=Alex" }
-];
-
-// Inspiration categories
-export const inspirationCategories = [
-  { name: "furniture", image: "https://via.placeholder.com/300x300?text=Furniture" },
-  { name: "gear", image: "https://via.placeholder.com/300x300?text=Gear" },
-  { name: "collectibles", image: "https://via.placeholder.com/300x300?text=Collectibles" },
-  { name: "electronics", image: "https://via.placeholder.com/300x300?text=Electronics" }
-];

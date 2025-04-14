@@ -21,10 +21,9 @@ import {
 } from "lucide-react";
 import { 
   trendingProducts, 
-  communityPicks, 
-  inspirationCategories,
   platformFilters,
   genreFilters,
+  priceFilters,
   placeholderImage
 } from "@/lib/mock-data";
 import { useAuth } from "@/context/AuthContext";
@@ -116,54 +115,65 @@ export default function LootScoutHomepage() {
       </div>
 
       <div className="mt-16">
-        <h3 className="text-lg font-semibold mb-4">Inspiration Filters</h3>
-        <div className="flex flex-wrap justify-center gap-2">
-          {[...platformFilters, ...genreFilters.slice(0, 2)].map((filter, idx) => (
-            <Button
-              key={idx}
-              variant="outline"
-              size="sm"
-              onClick={() => handleFilterClick(filter.query)}
-              className="flex items-center gap-1 transition-transform hover:scale-105"
-            >
-              {filter.query === "ps1" && <Gamepad className="w-4 h-4 mr-1" />}
-              {filter.query === "snes" && <Tv className="w-4 h-4 mr-1" />}
-              {filter.query === "n64" && <Gamepad2 className="w-4 h-4 mr-1" />}
-              {filter.query === "game boy" && <MonitorSmartphone className="w-4 h-4 mr-1" />}
-              {filter.query === "genesis" && <Gamepad className="w-4 h-4 mr-1" />}
-              {filter.query === "rpg" && <Rocket className="w-4 h-4 mr-1" />}
-              {filter.query === "fighting" && <Gamepad2 className="w-4 h-4 mr-1" />}
-              {filter.name}
-            </Button>
-          ))}
+        <h3 className="text-lg font-semibold mb-4">Browse By Category</h3>
+        
+        <div className="mb-6">
+          <h4 className="text-sm font-medium mb-2">Platforms</h4>
+          <div className="flex flex-wrap gap-2">
+            {platformFilters.map((filter, idx) => (
+              <Button
+                key={idx}
+                variant="outline"
+                size="sm"
+                onClick={() => handleFilterClick(filter.query)}
+                className="flex items-center gap-1 transition-transform hover:scale-105"
+              >
+                {filter.query === "ps1" && <Gamepad className="w-4 h-4 mr-1" />}
+                {filter.query === "snes" && <Tv className="w-4 h-4 mr-1" />}
+                {filter.query === "n64" && <Gamepad2 className="w-4 h-4 mr-1" />}
+                {filter.query === "game boy" && <MonitorSmartphone className="w-4 h-4 mr-1" />}
+                {filter.query === "genesis" && <Gamepad className="w-4 h-4 mr-1" />}
+                {filter.name}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="mt-16">
-        <h3 className="text-lg font-semibold mb-4">Community Spotlight</h3>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted rounded">
-          {communityPicks.map((member, idx) => (
-            <div key={idx} className="text-center min-w-[250px] max-w-[300px] flex-shrink-0">
-              <img src={member.image} alt={member.name} className="rounded-xl w-full h-64 object-cover mb-2" />
-              <p className="text-sm font-medium lowercase">{member.name}</p>
-            </div>
-          ))}
+        
+        <div className="mb-6">
+          <h4 className="text-sm font-medium mb-2">Genres</h4>
+          <div className="flex flex-wrap gap-2">
+            {genreFilters.map((filter, idx) => (
+              <Button
+                key={idx}
+                variant="outline"
+                size="sm"
+                onClick={() => handleFilterClick(filter.query)}
+                className="flex items-center gap-1 transition-transform hover:scale-105"
+              >
+                {filter.query === "rpg" && <Rocket className="w-4 h-4 mr-1" />}
+                {filter.query === "fighting" && <Gamepad2 className="w-4 h-4 mr-1" />}
+                {filter.name}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="mt-16">
-        <h3 className="text-lg font-semibold mb-4">Inspiration</h3>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted rounded">
-          {inspirationCategories.map((cat, idx) => (
-            <div
-              key={idx}
-              onClick={() => handleFilterClick(cat.name)}
-              className="text-center min-w-[250px] max-w-[300px] flex-shrink-0 cursor-pointer hover:scale-105 transition-transform"
-            >
-              <img src={cat.image} alt={cat.name} className="rounded-xl w-full h-64 object-cover mb-2" />
-              <p className="text-sm font-medium lowercase">{cat.name}</p>
-            </div>
-          ))}
+        
+        <div>
+          <h4 className="text-sm font-medium mb-2">Price Range</h4>
+          <div className="flex flex-wrap gap-2">
+            {priceFilters.map((filter, idx) => (
+              <Button
+                key={idx}
+                variant="outline"
+                size="sm"
+                onClick={() => handleFilterClick(filter.query)}
+                className="flex items-center gap-1 transition-transform hover:scale-105"
+              >
+                <DollarSign className="w-4 h-4 mr-1" />
+                {filter.name}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
     </Container>
