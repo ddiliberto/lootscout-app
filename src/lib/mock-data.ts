@@ -261,5 +261,16 @@ export const sourceFilters = [
   { name: "Etsy", query: "etsy" },
 ];
 
-// Trending products for homepage
-export const trendingProducts: Product[] = mockProducts.slice(0, 2);
+// Trending products for homepage (simulating most searched items)
+export interface TrendingProduct extends Product {
+  searchCount: number;
+}
+
+export const trendingProducts: TrendingProduct[] = [
+  { ...mockProducts[9], searchCount: 1240 },  // Earthbound
+  { ...mockProducts[2], searchCount: 980 },   // Final Fantasy VII
+  { ...mockProducts[4], searchCount: 875 },   // Zelda: Ocarina of Time
+  { ...mockProducts[0], searchCount: 760 },   // Chrono Trigger
+  { ...mockProducts[8], searchCount: 650 },   // Castlevania: SOTN
+  { ...mockProducts[5], searchCount: 540 }    // Pokémon Red
+];

@@ -206,72 +206,60 @@ export default function SearchPage() {
     <Container>
       <Header />
 
-      {/* Search Bar */}
-      <div className="mb-8">
-        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-muted px-4 py-2 rounded-full">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search for retro games..."
-            className="border-none bg-transparent text-sm"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button type="submit" variant="ghost" size="icon">
-            <Search className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
 
-      {/* Search Results Info */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold">
-          {query ? `Results for "${query}"` : "All Results"}
-          <span className="text-sm font-normal text-muted-foreground ml-2">
-            ({filteredProducts.length} items)
-          </span>
-        </h2>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1"
-            onClick={() => setShowFilterModal(true)}
-          >
-            <Filter className="h-4 w-4" />
-            Filter
-          </Button>
-          <div className="relative">
+      {/* Sticky Results Header */}
+      <div className="sticky top-0 bg-white z-10 pt-4 pb-4 border-b mb-6 shadow-sm">
+        {/* Search Results Info */}
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-semibold">
+            {query ? `Results for "${query}"` : "All Results"}
+            <span className="text-sm font-normal text-muted-foreground ml-2">
+              ({filteredProducts.length} items)
+            </span>
+          </h2>
+          <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
               size="sm" 
               className="flex items-center gap-1"
-              onClick={() => {
-                if (sortOrder === "newest") setSortOrder("price-asc");
-                else if (sortOrder === "price-asc") setSortOrder("price-desc");
-                else setSortOrder("newest");
-              }}
+              onClick={() => setShowFilterModal(true)}
             >
-              <ArrowUpDown className="h-4 w-4" />
-              {sortOrder === "newest" ? "Newest" : 
-               sortOrder === "price-asc" ? "Price: Low to High" : 
-               "Price: High to Low"}
+              <Filter className="h-4 w-4" />
+              Filter
             </Button>
+            <div className="relative">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={() => {
+                  if (sortOrder === "newest") setSortOrder("price-asc");
+                  else if (sortOrder === "price-asc") setSortOrder("price-desc");
+                  else setSortOrder("newest");
+                }}
+              >
+                <ArrowUpDown className="h-4 w-4" />
+                {sortOrder === "newest" ? "Newest" : 
+                 sortOrder === "price-asc" ? "Price: Low to High" : 
+                 "Price: High to Low"}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Display active filter count if any filters are applied */}
-      {(activePlatformFilters.length > 0 || 
-        activeGenreFilters.length > 0 || 
-        activePriceFilters.length > 0 || 
-        activeSourceFilters.length > 0) && (
-        <div className="mb-6">
-          <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
-            {activePlatformFilters.length + activeGenreFilters.length + 
-             activePriceFilters.length + activeSourceFilters.length} filters applied
+        {/* Display active filter count if any filters are applied */}
+        {(activePlatformFilters.length > 0 || 
+          activeGenreFilters.length > 0 || 
+          activePriceFilters.length > 0 || 
+          activeSourceFilters.length > 0) && (
+          <div>
+            <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+              {activePlatformFilters.length + activeGenreFilters.length + 
+               activePriceFilters.length + activeSourceFilters.length} filters applied
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       
       {/* Filter Modal */}
       <FilterModal
@@ -289,14 +277,14 @@ export default function SearchPage() {
       />
 
       {/* Search Results Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {filteredProducts.map((product) => (
           <Card key={product.id} className="relative flex flex-col hover:shadow-md transition-shadow">
             <div className="relative">
               <img
                 src={product.image}
                 alt={product.title}
-                className="w-full h-64 object-cover"
+                className="w-full h-40 md:h-64 object-cover"
               />
               <Button
                 variant="ghost"
@@ -321,13 +309,13 @@ export default function SearchPage() {
                 {product.source}
               </div>
             </div>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium leading-snug">{product.title}</CardTitle>
-              <CardDescription className="text-xs text-muted-foreground">
+            <CardHeader className="p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium leading-snug">{product.title}</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground line-clamp-2">
                 {product.description}
               </CardDescription>
             </CardHeader>
-            <CardContent className="mt-auto">
+            <CardContent className="mt-auto p-3 md:p-6 pt-0 md:pt-0">
               <p className="text-sm font-semibold">{product.price}</p>
               <p className="text-xs text-muted-foreground mt-1">
                 {product.condition} • {product.time}
@@ -347,6 +335,21 @@ export default function SearchPage() {
           <p className="text-muted-foreground">Try adjusting your search or filters</p>
         </div>
       )}
+      {/* Floating Search Bar */}
+      <div className="fixed bottom-4 left-0 right-0 z-10 px-4 md:px-16 max-w-screen-lg mx-auto">
+        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search for retro games..."
+            className="border-none bg-transparent text-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Button type="submit" variant="ghost" size="icon">
+            <Search className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
     </Container>
   );
 }

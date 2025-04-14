@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -18,22 +19,49 @@ import {
   Rocket,
   Gamepad2,
   DollarSign,
+  TrendingUp,
 } from "lucide-react";
 import { 
   trendingProducts, 
   platformFilters,
   genreFilters,
   priceFilters,
-  placeholderImage
+  placeholderImage,
+  type TrendingProduct
 } from "@/lib/mock-data";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { Header } from "@/components/Header";
 import { Container } from "@/components/Container";
+import { Carousel } from "@/components/Carousel";
+import { FullWidthSection } from "@/components/FullWidthSection";
 
 export default function LootScoutHomepage() {
   const { isAuthenticated } = useAuth();
   const { isFavorited, addToFavorites, removeFromFavorites } = useFavorites();
+  const [itemsToShow, setItemsToShow] = useState(3);
+  
+  // Set items to show based on window width
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setItemsToShow(2.5); // Show 2.5 cards on mobile
+      } else if (window.innerWidth < 1024) {
+        setItemsToShow(3);
+      } else {
+        setItemsToShow(4);
+      }
+    };
+    
+    // Initial call
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const handleFilterClick = (query: string) => {
     window.location.href = `/search?q=${encodeURIComponent(query)}`;
   };
@@ -73,46 +101,72 @@ export default function LootScoutHomepage() {
       </div>
 
       <div className="mt-16">
-        <h3 className="text-lg font-semibold mb-4">Trending This Week</h3>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted rounded">
-          {trendingProducts.map((product, index) => (
-            <Card key={index} className="relative min-w-[250px] max-w-[300px] flex-shrink-0 hover:shadow-md transition-shadow">
-              <img
-                src={product.image || placeholderImage}
-                alt={product.title}
-                className="w-full h-64 object-cover"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 text-white bg-black/40 hover:bg-black/60"
-                onClick={() => {
-                  if (isAuthenticated) {
-                    if (isFavorited(product.id)) {
-                      removeFromFavorites(product.id);
-                    } else {
-                      addToFavorites(product);
-                    }
-                  } else {
-                    // Redirect to auth page if not authenticated
-                    window.location.href = '/auth';
-                  }
-                }}
-              >
-                <Heart className={`h-5 w-5 ${isFavorited(product.id) ? 'fill-current' : ''}`} />
-              </Button>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium leading-snug">{product.title}</CardTitle>
-                <CardDescription className="text-xs text-muted-foreground">{product.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm font-semibold">{product.price}</p>
-                <p className="text-xs text-muted-foreground mt-1">{product.source} • {product.time}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <h3 className="text-lg font-semibold mb-4">
+          Trending This Week
+          <span className="text-xs font-normal text-muted-foreground ml-2">
+            Most searched games
+          </span>
+        </h3>
       </div>
+      
+      <FullWidthSection className="mt-6 mb-16 py-8 bg-gray-50">
+        <div className="px-6 md:px-12 lg:px-16">
+          <Carousel 
+            showDots 
+            showArrows 
+            autoPlay 
+            interval={6000}
+            itemsToShow={itemsToShow}
+            fullWidth
+            draggable
+          >
+          {trendingProducts.map((product, index) => (
+            <div key={index} className="px-2 md:px-3">
+              <Card className="relative flex flex-col hover:shadow-md transition-shadow h-full">
+                <div className="relative">
+                  <img
+                    src={product.image || placeholderImage}
+                    alt={product.title}
+                    className="w-full h-48 md:h-64 object-cover"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 text-white bg-black/40 hover:bg-black/60"
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        if (isFavorited(product.id)) {
+                          removeFromFavorites(product.id);
+                        } else {
+                          addToFavorites(product);
+                        }
+                      } else {
+                        // Redirect to auth page if not authenticated
+                        window.location.href = '/auth';
+                      }
+                    }}
+                  >
+                    <Heart className={`h-5 w-5 ${isFavorited(product.id) ? 'fill-current' : ''}`} />
+                  </Button>
+                  <div className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    {product.searchCount}+ searches
+                  </div>
+                </div>
+                <CardHeader className="p-4">
+                  <CardTitle className="text-sm font-medium leading-snug">{product.title}</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground">{product.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 pt-0 mt-auto">
+                  <p className="text-sm font-semibold">{product.price}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{product.source} • {product.time}</p>
+                </CardContent>
+              </Card>
+            </div>
+          ))}
+          </Carousel>
+        </div>
+      </FullWidthSection>
 
       <div className="mt-16">
         <h3 className="text-lg font-semibold mb-4">Browse By Category</h3>
