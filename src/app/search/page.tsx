@@ -34,8 +34,13 @@ import {
   placeholderImage,
   type Product
 } from "@/lib/mock-data";
+import { useAuth } from "@/context/AuthContext";
+import { useFavorites } from "@/context/FavoritesContext";
+import { Header } from "@/components/Header";
 
 export default function SearchPage() {
+  const { isAuthenticated } = useAuth();
+  const { isFavorited, addToFavorites, removeFromFavorites } = useFavorites();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
@@ -204,17 +209,7 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-white px-6 py-12 md:px-16">
-      {/* Header - Same as homepage */}
-      <div className="flex justify-between items-center mb-12">
-        <Link href="/">
-          <h1 className="text-xl font-semibold">LootScout</h1>
-        </Link>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" className="text-sm">Pricing</Button>
-          <Button variant="ghost" className="text-sm">Community</Button>
-          <Button variant="default" size="sm">Sign Up</Button>
-        </div>
-      </div>
+      <Header />
 
       {/* Search Bar */}
       <div className="mb-8">
@@ -442,8 +437,20 @@ export default function SearchPage() {
                 variant="ghost"
                 size="icon"
                 className="absolute top-2 right-2 text-white bg-black/40 hover:bg-black/60"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    if (isFavorited(product.id)) {
+                      removeFromFavorites(product.id);
+                    } else {
+                      addToFavorites(product);
+                    }
+                  } else {
+                    // Redirect to auth page if not authenticated
+                    window.location.href = '/auth';
+                  }
+                }}
               >
-                <Heart className="h-5 w-5" />
+                <Heart className={`h-5 w-5 ${isFavorited(product.id) ? 'fill-current' : ''}`} />
               </Button>
               <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
                 {product.source}

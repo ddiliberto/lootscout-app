@@ -27,8 +27,13 @@ import {
   genreFilters,
   placeholderImage
 } from "@/lib/mock-data";
+import { useAuth } from "@/context/AuthContext";
+import { useFavorites } from "@/context/FavoritesContext";
+import { Header } from "@/components/Header";
 
 export default function LootScoutHomepage() {
+  const { isAuthenticated } = useAuth();
+  const { isFavorited, addToFavorites, removeFromFavorites } = useFavorites();
   const handleFilterClick = (query: string) => {
     window.location.href = `/search?q=${encodeURIComponent(query)}`;
   };
@@ -43,14 +48,7 @@ export default function LootScoutHomepage() {
   
   return (
     <div className="min-h-screen bg-white px-6 py-12 md:px-16">
-      <div className="flex justify-between items-center mb-12">
-        <h1 className="text-xl font-semibold">LootScout</h1>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" className="text-sm">Pricing</Button>
-          <Button variant="ghost" className="text-sm">Community</Button>
-          <Button variant="default" size="sm">Sign Up</Button>
-        </div>
-      </div>
+      <Header />
 
       <div className="text-center max-w-xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-semibold mb-4">What game are you hunting for?</h2>
@@ -88,8 +86,20 @@ export default function LootScoutHomepage() {
                 variant="ghost"
                 size="icon"
                 className="absolute top-2 right-2 text-white bg-black/40 hover:bg-black/60"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    if (isFavorited(product.id)) {
+                      removeFromFavorites(product.id);
+                    } else {
+                      addToFavorites(product);
+                    }
+                  } else {
+                    // Redirect to auth page if not authenticated
+                    window.location.href = '/auth';
+                  }
+                }}
               >
-                <Heart className="h-5 w-5" />
+                <Heart className={`h-5 w-5 ${isFavorited(product.id) ? 'fill-current' : ''}`} />
               </Button>
               <CardHeader>
                 <CardTitle className="text-sm font-medium leading-snug">{product.title}</CardTitle>
