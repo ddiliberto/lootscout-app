@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
+import { Container } from '@/components/Container';
 
 export default function AuthPage() {
   const [email, setEmail] = useState('');
@@ -42,7 +43,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white px-6 py-12 md:px-16 flex items-center justify-center">
+    <Container className="flex items-center justify-center">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/">
@@ -126,6 +127,6 @@ export default function AuthPage() {
           </CardFooter>
         </Card>
       </div>
-    </div>
+    </Container>
   );
 }

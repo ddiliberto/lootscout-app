@@ -8,6 +8,7 @@ import { Heart } from 'lucide-react';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useAuth } from '@/context/AuthContext';
 import { Header } from '@/components/Header';
+import { Container } from '@/components/Container';
 
 export default function FavoritesPage() {
   const { favorites, loading, removeFromFavorites } = useFavorites();
@@ -15,7 +16,7 @@ export default function FavoritesPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-white px-6 py-12 md:px-16">
+      <Container>
         <Header />
 
         <div className="text-center max-w-xl mx-auto mt-16">
@@ -25,12 +26,12 @@ export default function FavoritesPage() {
             <Link href="/auth">Sign In</Link>
           </Button>
         </div>
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white px-6 py-12 md:px-16">
+    <Container>
       <Header />
 
       <div className="mb-8">
@@ -91,6 +92,6 @@ export default function FavoritesPage() {
           ))}
         </div>
       )}
-    </div>
+    </Container>
   );
 }

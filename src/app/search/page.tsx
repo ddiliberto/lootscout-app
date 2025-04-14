@@ -37,6 +37,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { Header } from "@/components/Header";
+import { Container } from "@/components/Container";
 
 export default function SearchPage() {
   const { isAuthenticated } = useAuth();
@@ -208,7 +209,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white px-6 py-12 md:px-16">
+    <Container>
       <Header />
 
       {/* Search Bar */}
@@ -482,6 +483,6 @@ export default function SearchPage() {
           <p className="text-muted-foreground">Try adjusting your search or filters</p>
         </div>
       )}
-    </div>
+    </Container>
   );
 }

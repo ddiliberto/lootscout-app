@@ -30,6 +30,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { Header } from "@/components/Header";
+import { Container } from "@/components/Container";
 
 export default function LootScoutHomepage() {
   const { isAuthenticated } = useAuth();
@@ -47,7 +48,7 @@ export default function LootScoutHomepage() {
   };
   
   return (
-    <div className="min-h-screen bg-white px-6 py-12 md:px-16">
+    <Container>
       <Header />
 
       <div className="text-center max-w-xl mx-auto">
@@ -165,6 +166,6 @@ export default function LootScoutHomepage() {
           ))}
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
