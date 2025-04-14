@@ -14,15 +14,8 @@ import { Button } from "@/components/ui/button";
 import {
   Search,
   Heart,
-  Gamepad,
-  MonitorSmartphone,
-  Tv,
-  Rocket,
   ArrowUpDown,
   Filter,
-  Gamepad2,
-  DollarSign,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { 
@@ -38,6 +31,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { Header } from "@/components/Header";
 import { Container } from "@/components/Container";
+import { FilterModal } from "@/components/FilterModal";
 
 export default function SearchPage() {
   const { isAuthenticated } = useAuth();
@@ -51,7 +45,7 @@ export default function SearchPage() {
   const [activePriceFilters, setActivePriceFilters] = useState<string[]>([]);
   const [activeSourceFilters, setActiveSourceFilters] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc" | "newest">("newest");
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Filter products based on search query and active filters
   useEffect(() => {
@@ -241,7 +235,7 @@ export default function SearchPage() {
             variant="outline" 
             size="sm" 
             className="flex items-center gap-1"
-            onClick={() => setShowFilterMenu(!showFilterMenu)}
+            onClick={() => setShowFilterModal(true)}
           >
             <Filter className="h-4 w-4" />
             Filter
@@ -266,163 +260,33 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {/* Active Filters */}
+      {/* Display active filter count if any filters are applied */}
       {(activePlatformFilters.length > 0 || 
         activeGenreFilters.length > 0 || 
         activePriceFilters.length > 0 || 
         activeSourceFilters.length > 0) && (
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Active Filters:</h3>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={clearAllFilters}
-              className="text-xs"
-            >
-              Clear All
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {activePlatformFilters.map((filter) => {
-              const platformFilter = platformFilters.find(f => f.query === filter);
-              return (
-                <Button
-                  key={filter}
-                  variant="default"
-                  size="sm"
-                  onClick={() => togglePlatformFilter(filter)}
-                  className="flex items-center gap-1 bg-primary/80"
-                >
-                  {platformFilter?.name}
-                  <X className="w-3 h-3 ml-1" />
-                </Button>
-              );
-            })}
-            {activeGenreFilters.map((filter) => {
-              const genreFilter = genreFilters.find(f => f.query === filter);
-              return (
-                <Button
-                  key={filter}
-                  variant="default"
-                  size="sm"
-                  onClick={() => toggleGenreFilter(filter)}
-                  className="flex items-center gap-1 bg-primary/80"
-                >
-                  {genreFilter?.name}
-                  <X className="w-3 h-3 ml-1" />
-                </Button>
-              );
-            })}
-            {activePriceFilters.map((filter) => {
-              const priceFilter = priceFilters.find(f => f.query === filter);
-              return (
-                <Button
-                  key={filter}
-                  variant="default"
-                  size="sm"
-                  onClick={() => togglePriceFilter(filter)}
-                  className="flex items-center gap-1 bg-primary/80"
-                >
-                  {priceFilter?.name}
-                  <X className="w-3 h-3 ml-1" />
-                </Button>
-              );
-            })}
-            {activeSourceFilters.map((filter) => {
-              const sourceFilter = sourceFilters.find(f => f.query === filter);
-              return (
-                <Button
-                  key={filter}
-                  variant="default"
-                  size="sm"
-                  onClick={() => toggleSourceFilter(filter)}
-                  className="flex items-center gap-1 bg-primary/80"
-                >
-                  {sourceFilter?.name}
-                  <X className="w-3 h-3 ml-1" />
-                </Button>
-              );
-            })}
+          <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+            {activePlatformFilters.length + activeGenreFilters.length + 
+             activePriceFilters.length + activeSourceFilters.length} filters applied
           </div>
         </div>
       )}
-
-      {/* Platform Filter Pills */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {platformFilters.map((filter) => (
-          <Button
-            key={filter.query}
-            variant={activePlatformFilters.includes(filter.query) ? "default" : "outline"}
-            size="sm"
-            onClick={() => togglePlatformFilter(filter.query)}
-            className="flex items-center gap-1"
-          >
-            {filter.query === "ps1" && <Gamepad className="w-4 h-4 mr-1" />}
-            {filter.query === "snes" && <Tv className="w-4 h-4 mr-1" />}
-            {filter.query === "n64" && <Gamepad2 className="w-4 h-4 mr-1" />}
-            {filter.query === "game boy" && <MonitorSmartphone className="w-4 h-4 mr-1" />}
-            {filter.query === "genesis" && <Gamepad className="w-4 h-4 mr-1" />}
-            {filter.name}
-          </Button>
-        ))}
-      </div>
       
-      {/* Filter Menu */}
-      {showFilterMenu && (
-        <div className="mb-6 p-4 border rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Genre</h3>
-              <div className="flex flex-col gap-2">
-                {genreFilters.map((filter) => (
-                  <Button
-                    key={filter.query}
-                    variant={activeGenreFilters.includes(filter.query) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => toggleGenreFilter(filter.query)}
-                    className="justify-start"
-                  >
-                    {filter.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Price</h3>
-              <div className="flex flex-col gap-2">
-                {priceFilters.map((filter) => (
-                  <Button
-                    key={filter.query}
-                    variant={activePriceFilters.includes(filter.query) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => togglePriceFilter(filter.query)}
-                    className="justify-start"
-                  >
-                    {filter.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Source</h3>
-              <div className="flex flex-col gap-2">
-                {sourceFilters.map((filter) => (
-                  <Button
-                    key={filter.query}
-                    variant={activeSourceFilters.includes(filter.query) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => toggleSourceFilter(filter.query)}
-                    className="justify-start"
-                  >
-                    {filter.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        activePlatformFilters={activePlatformFilters}
+        activeGenreFilters={activeGenreFilters}
+        activePriceFilters={activePriceFilters}
+        activeSourceFilters={activeSourceFilters}
+        togglePlatformFilter={togglePlatformFilter}
+        toggleGenreFilter={toggleGenreFilter}
+        togglePriceFilter={togglePriceFilter}
+        toggleSourceFilter={toggleSourceFilter}
+        clearAllFilters={clearAllFilters}
+      />
 
       {/* Search Results Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
