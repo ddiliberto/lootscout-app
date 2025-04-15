@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Heart, User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   className?: string;
@@ -14,7 +15,7 @@ export function Header({ className = '' }: HeaderProps) {
   const { favorites } = useFavorites();
 
   return (
-    <div className={`flex justify-between items-center ${className}`}>
+    <header className={cn("sticky top-0 z-50 w-full flex items-center justify-between py-6 px-4 md:px-8 bg-white", className)}>
       <Link href="/">
         <h1 className="text-xl font-semibold">LootScout</h1>
       </Link>
@@ -47,6 +48,6 @@ export function Header({ className = '' }: HeaderProps) {
           </Button>
         )}
       </div>
-    </div>
+    </header>
   );
 }

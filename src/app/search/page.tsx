@@ -298,119 +298,123 @@ export default function SearchPage() {
   };
 
   return (
-    <Container>
-      <Header className="mb-12" />
-      <FilterModal
-        isOpen={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        activePlatformFilters={activePlatformFilters}
-        activeGenreFilters={activeGenreFilters}
-        activePriceFilters={activePriceFilters}
-        activeSourceFilters={activeSourceFilters}
-        togglePlatformFilter={togglePlatformFilter}
-        toggleGenreFilter={toggleGenreFilter}
-        togglePriceFilter={togglePriceFilter}
-        toggleSourceFilter={toggleSourceFilter}
-        clearAllFilters={clearAllFilters}
-      />
-      <Toaster 
-        position="top-right"
-        className="md:right-4 md:top-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:top-4"
-      />
-
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold">Search Results</h2>
-        <p className="text-muted-foreground">
-          {query ? `Results for "${query}"` : "Enter a search term to find games"}
-        </p>
+    <>
+      {/* Header is sticky at the top, Search Results row is sticky below */}
+      <Header className="mb-0" />
+      <div className="sticky top-[64px] z-40 w-full bg-white flex items-center justify-between px-4 py-4 border-b border-gray-100" style={{background: 'rgba(255,255,255,0.97)'}}>
+        <div className="text-xl font-semibold">
+          {query && `Search Results for "${query}"`}
+        </div>
+        <Button type="button" variant="ghost" size="icon" onClick={() => setShowFilterModal(true)}>
+          <Filter className="h-5 w-5 text-muted-foreground" />
+        </Button>
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-gray-100 rounded-2xl h-64 w-full animate-pulse flex flex-col">
-              <div className="h-40 md:h-64 bg-gray-200 rounded-t-2xl" />
-              <div className="flex gap-2 mt-4 px-4">
-                <div className="h-6 w-1/3 bg-gray-200 rounded-full" />
-                <div className="h-6 w-1/4 bg-gray-200 rounded-full ml-auto" />
-              </div>
-              <div className="h-4 bg-gray-200 rounded mt-4 mx-4" />
-              <div className="h-4 bg-gray-200 rounded mt-2 mx-4" />
-              <div className="h-4 bg-gray-200 rounded mt-2 mx-4" />
-            </div>
-          ))}
-        </div>
-      ) : filteredProducts.length === 0 ? (
-        <div className="text-center py-12">
-          <h3 className="text-lg font-medium mb-2">No results found</h3>
-          <p className="text-muted-foreground mb-6">
-            Try adjusting your search or filters to find what you're looking for.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <Card key={product.id} className="relative flex flex-row sm:flex-col bg-transparent shadow-none p-0 items-stretch">
-              {/* Image section (left on mobile, top on desktop) */}
-              <div className="relative flex-shrink-0 w-28 h-28 sm:w-full sm:h-64">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="w-28 h-28 sm:w-full sm:h-64 object-cover rounded-[10px]"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 text-gray-700 bg-white/80 hover:bg-white"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleAddToFavorites(product);
-                  }}
-                  aria-label={checkIsFavorited(product.id) ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                  <Heart className={`h-6 w-6 ${checkIsFavorited(product.id) ? 'fill-current text-primary' : ''}`} />
-                </Button>
-              </div>
-              {/* Details section (right on mobile, below on desktop) */}
-              <div className="flex flex-col justify-between flex-1 px-4 py-2 sm:px-0 sm:py-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-semibold">{product.price}</span>
-                  <span className="rounded-full bg-gray-100 text-xs font-medium px-3 py-1 ml-2">{product.source}</span>
-                </div>
-                <div className="mt-1">
-                  <div className="text-sm font-medium mb-1 line-clamp-2">{product.title}</div>
-                  <div className="text-xs text-muted-foreground line-clamp-2 mb-2">{product.description}</div>
-                  <a href={product.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline block mt-2">
-                    Click for details
-                  </a>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* Sticky, floating search bar at the bottom */}
-      <form 
-        onSubmit={handleSearch}
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100vw-32px)] max-w-2xl z-50 flex items-center gap-2 bg-white shadow-lg rounded-full px-4 py-2 border border-[#EEEEEE]"
-        style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' }}
-      >
-        <Button type="button" variant="ghost" size="icon" onClick={() => setShowFilterModal(true)}>
-          <Filter className="h-4 w-4 text-muted-foreground" />
-        </Button>
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Try 'sealed EarthBound SNES' or 'Castlevania PS1'"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border-none bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 min-w-0"
+      <Container>
+        <FilterModal
+          isOpen={showFilterModal}
+          onClose={() => setShowFilterModal(false)}
+          activePlatformFilters={activePlatformFilters}
+          activeGenreFilters={activeGenreFilters}
+          activePriceFilters={activePriceFilters}
+          activeSourceFilters={activeSourceFilters}
+          togglePlatformFilter={togglePlatformFilter}
+          toggleGenreFilter={toggleGenreFilter}
+          togglePriceFilter={togglePriceFilter}
+          toggleSourceFilter={toggleSourceFilter}
+          clearAllFilters={clearAllFilters}
         />
-        <Button type="submit" variant="ghost" size="icon">
-          <Search className="h-4 w-4" />
-        </Button>
-      </form>
-    </Container>
+        <Toaster 
+          position="top-right"
+          className="md:right-4 md:top-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:top-4"
+        />
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded-2xl h-64 w-full animate-pulse flex flex-col">
+                <div className="h-40 md:h-64 bg-gray-200 rounded-t-2xl" />
+                <div className="flex gap-2 mt-4 px-4">
+                  <div className="h-6 w-1/3 bg-gray-200 rounded-full" />
+                  <div className="h-6 w-1/4 bg-gray-200 rounded-full ml-auto" />
+                </div>
+                <div className="h-4 bg-gray-200 rounded mt-4 mx-4" />
+                <div className="h-4 bg-gray-200 rounded mt-2 mx-4" />
+                <div className="h-4 bg-gray-200 rounded mt-2 mx-4" />
+              </div>
+            ))}
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium mb-2">No results found</h3>
+            <p className="text-muted-foreground mb-6">
+              Try adjusting your search or filters to find what you're looking for.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <Card key={product.id} className="relative flex flex-row sm:flex-col bg-transparent shadow-none p-0 items-stretch">
+                {/* Image section (left on mobile, top on desktop) with container */}
+                <div className="relative flex-shrink-0 w-28 h-28 sm:w-full sm:h-64 flex items-center justify-center">
+                  <div className="bg-white p-0 sm:p-8 rounded-[12px] w-full h-full flex items-center justify-center">
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 text-gray-700 bg-white/80 hover:bg-white"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAddToFavorites(product);
+                    }}
+                    aria-label={checkIsFavorited(product.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Heart className={`h-6 w-6 ${checkIsFavorited(product.id) ? 'fill-current text-primary' : ''}`} />
+                  </Button>
+                </div>
+                {/* Details section (right on mobile, below on desktop) */}
+                <div className="flex flex-col justify-between flex-1 px-4 py-2 sm:px-0 sm:py-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-semibold">{product.price}</span>
+                    <span className="rounded-full bg-gray-100 text-xs font-medium px-3 py-1 ml-2">{product.source}</span>
+                  </div>
+                  <div className="mt-1">
+                    <div className="text-sm font-medium mb-1 line-clamp-2">{product.title}</div>
+                    <div className="text-xs text-muted-foreground line-clamp-2 mb-2">{product.description}</div>
+                    <a href={product.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline block mt-2">
+                      Click for details
+                    </a>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Sticky, floating search bar at the bottom */}
+        <form 
+          onSubmit={handleSearch}
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100vw-32px)] max-w-2xl z-50 flex items-center gap-2 bg-white shadow-lg rounded-full px-4 py-2 border border-[#EEEEEE]"
+          style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' }}
+        >
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Try 'sealed EarthBound SNES' or 'Castlevania PS1'"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border-none bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 min-w-0"
+          />
+          <Button type="submit" variant="ghost" size="icon">
+            <Search className="h-4 w-4" />
+          </Button>
+        </form>
+      </Container>
+    </>
   );
 }
