@@ -17,7 +17,7 @@ export default function FavoritesPage() {
   if (!isAuthenticated) {
     return (
       <Container>
-        <Header className="mb-12" />
+        <Header />
 
         <div className="text-center max-w-xl mx-auto mt-16">
           <h2 className="text-3xl md:text-4xl font-semibold mb-4">Sign in to view your favorites</h2>
@@ -32,7 +32,7 @@ export default function FavoritesPage() {
 
   return (
     <Container>
-      <Header className="mb-12" />
+      <Header />
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold">Your Favorites</h2>

@@ -20,6 +20,11 @@ import {
   Gamepad2,
   DollarSign,
   TrendingUp,
+  Zap,
+  Bell,
+  Save,
+  BarChart3,
+  Users,
 } from "lucide-react";
 import { 
   platformFilters,
@@ -128,200 +133,136 @@ export default function LootScoutHomepage() {
   const { isAuthenticated } = useAuth();
   const { isFavorited, addToFavorites, removeFromFavorites } = useFavorites();
   const [itemsToShow, setItemsToShow] = useState(3);
-  
-  // Set items to show based on window width
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
-        setItemsToShow(2.5); // Show 2.5 cards on mobile
+        setItemsToShow(2.5);
       } else if (window.innerWidth < 1024) {
         setItemsToShow(3);
       } else {
         setItemsToShow(4);
       }
     };
-    
-    // Initial call
     handleResize();
-    
-    // Add event listener
     window.addEventListener('resize', handleResize);
-    
-    // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
   const handleFilterClick = (query: string) => {
     window.location.href = `/search?q=${encodeURIComponent(query)}`;
   };
-  
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const searchInput = document.querySelector('input') as HTMLInputElement;
-    if (searchInput && searchInput.value.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchInput.value.trim())}`;
+    if (searchQuery.trim()) {
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
     }
   };
-  
+
   return (
     <Container>
       <Header className="mb-12" />
-
-      <div className="text-center max-w-xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-semibold mb-4">What game are you hunting for?</h2>
-        <p className="text-muted-foreground mb-6">Track and discover rare retro games across the web.</p>
-        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white border border-[#EEEEEE] px-4 py-2 rounded-full">
+      {/* 🕹️ Hero Section */}
+      <section className="text-center max-w-2xl mx-auto mb-16">
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
+          Track Rare Games. Snipe Better Deals.
+        </h1>
+        <p className="text-lg md:text-xl text-muted-foreground mb-6">
+          LootScout scans secondhand sites in real-time so you can lock down vintage games, sealed copies, and collector gold—before they disappear.
+        </p>
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center gap-2 bg-white border border-[#EEEEEE] px-4 py-2 rounded-full max-w-xl mx-auto"
+        >
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input
+            type="text"
             placeholder="Try 'sealed EarthBound SNES' or 'Castlevania PS1'"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
             className="border-none bg-transparent text-sm"
           />
           <Button type="submit" variant="ghost" size="icon">
             <Search className="h-4 w-4" />
           </Button>
         </form>
+      </section>
 
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => handleFilterClick("trending")}>Trending Games</Button>
-          <Button variant="outline" size="sm" onClick={() => handleFilterClick("under $50")}>Under $50</Button>
-          <Button variant="outline" size="sm" onClick={() => handleFilterClick("sealed")}>Sealed Only</Button>
-          <Button variant="outline" size="sm" onClick={() => handleFilterClick("rare")}>Show Me Rare Finds</Button>
-        </div>
-      </div>
-
-      <div className="mt-16">
-        <h3 className="text-lg font-semibold mb-4">
-          Trending This Week
-          <span className="text-xs font-normal text-muted-foreground ml-2">
-            Most searched games
-          </span>
-        </h3>
-      </div>
-      
-      <FullWidthSection className="mt-6 mb-16 py-8">
-        <div className="px-6 md:px-12 lg:px-16">
-          <Carousel 
-            showDots 
-            showArrows 
-            autoPlay 
-            interval={6000}
-            itemsToShow={itemsToShow}
-            fullWidth
-            draggable
-          >
-          {trendingProducts.map((product, index) => (
-            <div key={index} className="px-2 md:px-3">
-              <Card className="relative flex flex-col border border-[#EEEEEE] hover:border-gray-300 transition-colors h-full">
-                <div className="relative">
-                  <img
-                    src={product.image || placeholderImage}
-                    alt={product.title}
-                    className="w-full h-48 md:h-64 object-cover"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 text-white bg-black/40 hover:bg-black/60"
-                    onClick={() => {
-                      if (isAuthenticated) {
-                        if (isFavorited(product.id)) {
-                          removeFromFavorites(product.id);
-                        } else {
-                          addToFavorites(product);
-                        }
-                      } else {
-                        // Redirect to auth page if not authenticated
-                        window.location.href = '/auth';
-                      }
-                    }}
-                  >
-                    <Heart className={`h-5 w-5 ${isFavorited(product.id) ? 'fill-current' : ''}`} />
-                  </Button>
-                  <div className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    {product.searchCount}+ searches
-                  </div>
-                </div>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-sm font-medium leading-snug">{product.title}</CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground">{product.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0 mt-auto">
-                  <p className="text-sm font-semibold">{product.price}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{product.source} • {product.time}</p>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
-          </Carousel>
-        </div>
-      </FullWidthSection>
-
-      <div className="mt-16">
-        <h3 className="text-lg font-semibold mb-4">Browse By Category</h3>
-        
-        <div className="mb-10">
-          <h4 className="text-sm font-medium mb-4">Platforms</h4>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {platformFilters.map((filter, idx) => (
-              <div 
-                key={idx} 
-                onClick={() => handleFilterClick(filter.query)}
-                className="cursor-pointer group"
-              >
-                <Card className="border border-[#EEEEEE] hover:border-gray-300 transition-colors overflow-hidden">
-                  <div className="relative h-32 w-full">
-                    <div 
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{ backgroundColor: filter.color }}
-                    >
-                      {filter.query === "ps1" && <Gamepad className="w-12 h-12 text-white" />}
-                      {filter.query === "snes" && <Tv className="w-12 h-12 text-white" />}
-                      {filter.query === "n64" && <Gamepad2 className="w-12 h-12 text-white" />}
-                      {filter.query === "game boy" && <MonitorSmartphone className="w-12 h-12 text-white" />}
-                      {filter.query === "genesis" && <Gamepad className="w-12 h-12 text-white" />}
-                    </div>
-                  </div>
-                  <div className="p-3 text-center">
-                    <p className="text-sm font-medium">{filter.name}</p>
-                  </div>
-                </Card>
-              </div>
-            ))}
+      {/* ⚡️ Why LootScout */}
+      <section className="max-w-3xl mx-auto mb-16">
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 justify-center">
+          <Zap className="w-6 h-6 text-primary" /> Why LootScout
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6 text-left">
+          <div>
+            <h3 className="font-semibold mb-2">One search. Every marketplace.</h3>
+            <p className="text-muted-foreground mb-4">
+              We crawl eBay, Mercari, Poshmark, Facebook Marketplace, and more—surfacing the best deals across the web.
+            </p>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2"><Search className="w-4 h-4 text-primary" /> Find games by title, console, or condition</li>
+              <li className="flex items-center gap-2"><Bell className="w-4 h-4 text-primary" /> Get alerts the second a deal drops</li>
+              <li className="flex items-center gap-2"><Save className="w-4 h-4 text-primary" /> Save favorites in your personal vault</li>
+              <li className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-primary" /> See price history and market trends</li>
+            </ul>
+          </div>
+          <div className="flex flex-col justify-center">
+            <h3 className="font-semibold mb-2">🎮 Made for Collectors</h3>
+            <p className="text-muted-foreground">
+              Whether you're chasing a sealed copy of EarthBound or rebuilding your PS1 shelf—LootScout keeps the hunt effortless and automatic.
+            </p>
           </div>
         </div>
-        
-        <div className="mb-10">
-          <h4 className="text-sm font-medium mb-4">Genres</h4>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {genreFilters.map((filter, idx) => (
-              <div 
-                key={idx} 
-                onClick={() => handleFilterClick(filter.query)}
-                className="cursor-pointer group"
-              >
-                <Card className="border border-[#EEEEEE] hover:border-gray-300 transition-colors overflow-hidden">
-                  <div className="relative h-32 w-full">
-                    <div 
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{ backgroundColor: filter.color }}
-                    >
-                      {filter.query === "rpg" && <Rocket className="w-12 h-12 text-white" />}
-                      {filter.query === "fighting" && <Gamepad2 className="w-12 h-12 text-white" />}
-                      {filter.query === "action" && <Gamepad className="w-12 h-12 text-white" />}
-                      {filter.query === "adventure" && <Tv className="w-12 h-12 text-white" />}
-                      {filter.query === "platformer" && <Gamepad2 className="w-12 h-12 text-white" />}
-                      {filter.query === "horror" && <MonitorSmartphone className="w-12 h-12 text-white" />}
-                    </div>
-                  </div>
-                  <div className="p-3 text-center">
-                    <p className="text-sm font-medium">{filter.name}</p>
-                  </div>
-                </Card>
-              </div>
-            ))}
+      </section>
+
+      {/* 💾 Works Across */}
+      <section className="max-w-2xl mx-auto mb-16">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 justify-center">
+          <Save className="w-5 h-5 text-primary" /> Works Across
+        </h2>
+        <div className="flex flex-wrap justify-center gap-4 text-lg font-medium">
+          <span className="bg-gray-100 px-4 py-2 rounded">eBay</span>
+          <span className="bg-gray-100 px-4 py-2 rounded">Mercari</span>
+          <span className="bg-gray-100 px-4 py-2 rounded">Facebook Marketplace</span>
+          <span className="bg-gray-100 px-4 py-2 rounded">Etsy</span>
+          <span className="bg-gray-100 px-4 py-2 rounded">Poshmark</span>
+        </div>
+        <p className="text-muted-foreground mt-4 text-center">Real-time results. No more tab-hopping.</p>
+      </section>
+
+      {/* 💸 Pricing */}
+      <section className="max-w-3xl mx-auto mb-20">
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 justify-center">
+          <DollarSign className="w-6 h-6 text-primary" /> Pricing
+        </h2>
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="border rounded-lg p-6 bg-white shadow-sm">
+            <h3 className="text-xl font-semibold mb-2">Free</h3>
+            <ul className="mb-4 space-y-1 text-muted-foreground">
+              <li>5 searches/day</li>
+              <li>1 saved alert</li>
+              <li>10 favorites</li>
+              <li>Trending games feed</li>
+            </ul>
+            <div className="text-3xl font-bold mb-2">Free</div>
+            <Button variant="outline" className="w-full">Get Started</Button>
+          </div>
+          <div className="border rounded-lg p-6 bg-white shadow-md border-primary">
+            <h3 className="text-xl font-semibold mb-2">Pro <span className="ml-2 text-base font-normal text-primary">– $5.99/month</span></h3>
+            <ul className="mb-4 space-y-1 text-muted-foreground">
+              <li>Unlimited searches & alerts</li>
+              <li>Instant drop notifications</li>
+              <li>Portfolio value tracking</li>
+              <li>Advanced filters</li>
+              <li>First access to new features</li>
+            </ul>
+            <div className="text-3xl font-bold mb-2 text-primary">$5.99<span className="text-base font-normal">/mo</span></div>
+            <Button variant="default" className="w-full">Go Pro</Button>
           </div>
         </div>
-      </div>
+      </section>
     </Container>
   );
 }
