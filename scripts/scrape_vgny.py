@@ -56,17 +56,23 @@ def search_vgny(query, platform=None, max_results=16):
         
         # Find all product listings
         products = []
-        product_elements = soup.select('li.product')
+        product_elements = soup.select('.productGrid li.product')
         
         print(f"Found {len(product_elements)} products on VideoGamesNewYork.com", file=sys.stderr)
         
         if not product_elements:
             # Try alternative selectors
-            product_elements = soup.select('.productGrid li')
-            print(f"Trying alternative selector '.productGrid li', found {len(product_elements)} products", file=sys.stderr)
+            product_elements = soup.select('li.product')
+            print(f"Trying alternative selector 'li.product', found {len(product_elements)} products", file=sys.stderr)
         
         for product_elem in product_elements[:max_results]:
             try:
+                # Check if product is out of stock
+                out_of_stock_elem = product_elem.select_one('.sale-flag-side--outstock')
+                if out_of_stock_elem:
+                    print("Skipping out of stock product", file=sys.stderr)
+                    continue
+                
                 # Extract product details
                 article_elem = product_elem.select_one('article.card')
                 if not article_elem:
@@ -74,12 +80,10 @@ def search_vgny(query, platform=None, max_results=16):
                     article_elem = product_elem  # Fall back to the li element
                 
                 # Extract product name and URL
-                product_name_elem = article_elem.select_one('h4.card-title a')
+                product_name_elem = article_elem.select_one('.card-title a')
                 if not product_name_elem:
-                    print("Could not find product name element, trying alternative selectors", file=sys.stderr)
-                    product_name_elem = article_elem.select_one('.card-title a')
-                    if not product_name_elem:
-                        continue
+                    print("Could not find product name element", file=sys.stderr)
+                    continue
                 
                 product_name = product_name_elem.text.strip()
                 product_url = product_name_elem['href']
@@ -90,15 +94,13 @@ def search_vgny(query, platform=None, max_results=16):
                 if platform and platform.lower() not in product_name.lower():
                     continue
                 
-                # Extract price - try different selectors based on the HTML structure
+                # Extract price - use the main price element
                 price = "Price not available"
-                
-                # First try the main price
-                price_elem = article_elem.select_one('.price.price--withoutTax.price--main')
+                price_elem = article_elem.select_one('.price--withoutTax.price--main')
                 if price_elem:
                     price = price_elem.text.strip()
                 else:
-                    # Try alternative price selectors
+                    # Try alternative price selectors if main one not found
                     price_elem = article_elem.select_one('.price--withoutTax')
                     if price_elem:
                         price = price_elem.text.strip()
@@ -107,8 +109,8 @@ def search_vgny(query, platform=None, max_results=16):
                         if price_elem:
                             price = price_elem.text.strip()
                 
-                # Extract image
-                img_elem = article_elem.select_one('.card-figure img')
+                # Extract image - get the first image in the container
+                img_elem = article_elem.select_one('.card-img-container img')
                 if not img_elem:
                     img_elem = article_elem.select_one('img')
                 
@@ -123,6 +125,14 @@ def search_vgny(query, platform=None, max_results=16):
                     summary_text = summary_elem.text.strip()
                     if summary_text:
                         description = summary_text[:100] + "..." if len(summary_text) > 100 else summary_text
+                
+                # Extract brand if available
+                brand = "VGNY"
+                brand_elem = article_elem.select_one('.card-text--brand')
+                if brand_elem:
+                    brand_text = brand_elem.text.strip()
+                    if brand_text:
+                        brand = brand_text
                 
                 # Determine condition from title (approximate)
                 condition = "Used"
