@@ -45,13 +45,13 @@ export default function AuthPage() {
   return (
     <Container className="flex items-center justify-center">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className="text-center mb-12">
           <Link href="/">
             <h1 className="text-2xl font-semibold">LootScout</h1>
           </Link>
         </div>
 
-        <Card>
+        <Card className="border border-[#EEEEEE]">
           <CardHeader>
             <CardTitle>{isSignUp ? 'Create an Account' : 'Sign In'}</CardTitle>
             <CardDescription>

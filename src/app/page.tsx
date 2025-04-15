@@ -76,12 +76,12 @@ export default function LootScoutHomepage() {
   
   return (
     <Container>
-      <Header />
+      <Header className="mb-12" />
 
       <div className="text-center max-w-xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-semibold mb-4">What game are you hunting for?</h2>
         <p className="text-muted-foreground mb-6">Track and discover rare retro games across the web.</p>
-        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-muted px-4 py-2 rounded-full">
+        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white border border-[#EEEEEE] px-4 py-2 rounded-full">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Try 'sealed EarthBound SNES' or 'Castlevania PS1'"
@@ -109,7 +109,7 @@ export default function LootScoutHomepage() {
         </h3>
       </div>
       
-      <FullWidthSection className="mt-6 mb-16 py-8 bg-gray-50">
+      <FullWidthSection className="mt-6 mb-16 py-8">
         <div className="px-6 md:px-12 lg:px-16">
           <Carousel 
             showDots 
@@ -122,7 +122,7 @@ export default function LootScoutHomepage() {
           >
           {trendingProducts.map((product, index) => (
             <div key={index} className="px-2 md:px-3">
-              <Card className="relative flex flex-col hover:shadow-md transition-shadow h-full">
+              <Card className="relative flex flex-col border border-[#EEEEEE] hover:border-gray-300 transition-colors h-full">
                 <div className="relative">
                   <img
                     src={product.image || placeholderImage}
@@ -171,61 +171,65 @@ export default function LootScoutHomepage() {
       <div className="mt-16">
         <h3 className="text-lg font-semibold mb-4">Browse By Category</h3>
         
-        <div className="mb-6">
-          <h4 className="text-sm font-medium mb-2">Platforms</h4>
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-10">
+          <h4 className="text-sm font-medium mb-4">Platforms</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {platformFilters.map((filter, idx) => (
-              <Button
-                key={idx}
-                variant="outline"
-                size="sm"
+              <div 
+                key={idx} 
                 onClick={() => handleFilterClick(filter.query)}
-                className="flex items-center gap-1 transition-transform hover:scale-105"
+                className="cursor-pointer group"
               >
-                {filter.query === "ps1" && <Gamepad className="w-4 h-4 mr-1" />}
-                {filter.query === "snes" && <Tv className="w-4 h-4 mr-1" />}
-                {filter.query === "n64" && <Gamepad2 className="w-4 h-4 mr-1" />}
-                {filter.query === "game boy" && <MonitorSmartphone className="w-4 h-4 mr-1" />}
-                {filter.query === "genesis" && <Gamepad className="w-4 h-4 mr-1" />}
-                {filter.name}
-              </Button>
+                <Card className="border border-[#EEEEEE] hover:border-gray-300 transition-colors overflow-hidden">
+                  <div className="relative h-32 w-full">
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center"
+                      style={{ backgroundColor: filter.color }}
+                    >
+                      {filter.query === "ps1" && <Gamepad className="w-12 h-12 text-white" />}
+                      {filter.query === "snes" && <Tv className="w-12 h-12 text-white" />}
+                      {filter.query === "n64" && <Gamepad2 className="w-12 h-12 text-white" />}
+                      {filter.query === "game boy" && <MonitorSmartphone className="w-12 h-12 text-white" />}
+                      {filter.query === "genesis" && <Gamepad className="w-12 h-12 text-white" />}
+                    </div>
+                  </div>
+                  <div className="p-3 text-center">
+                    <p className="text-sm font-medium">{filter.name}</p>
+                  </div>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
         
-        <div className="mb-6">
-          <h4 className="text-sm font-medium mb-2">Genres</h4>
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-10">
+          <h4 className="text-sm font-medium mb-4">Genres</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             {genreFilters.map((filter, idx) => (
-              <Button
-                key={idx}
-                variant="outline"
-                size="sm"
+              <div 
+                key={idx} 
                 onClick={() => handleFilterClick(filter.query)}
-                className="flex items-center gap-1 transition-transform hover:scale-105"
+                className="cursor-pointer group"
               >
-                {filter.query === "rpg" && <Rocket className="w-4 h-4 mr-1" />}
-                {filter.query === "fighting" && <Gamepad2 className="w-4 h-4 mr-1" />}
-                {filter.name}
-              </Button>
-            ))}
-          </div>
-        </div>
-        
-        <div>
-          <h4 className="text-sm font-medium mb-2">Price Range</h4>
-          <div className="flex flex-wrap gap-2">
-            {priceFilters.map((filter, idx) => (
-              <Button
-                key={idx}
-                variant="outline"
-                size="sm"
-                onClick={() => handleFilterClick(filter.query)}
-                className="flex items-center gap-1 transition-transform hover:scale-105"
-              >
-                <DollarSign className="w-4 h-4 mr-1" />
-                {filter.name}
-              </Button>
+                <Card className="border border-[#EEEEEE] hover:border-gray-300 transition-colors overflow-hidden">
+                  <div className="relative h-32 w-full">
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center"
+                      style={{ backgroundColor: filter.color }}
+                    >
+                      {filter.query === "rpg" && <Rocket className="w-12 h-12 text-white" />}
+                      {filter.query === "fighting" && <Gamepad2 className="w-12 h-12 text-white" />}
+                      {filter.query === "action" && <Gamepad className="w-12 h-12 text-white" />}
+                      {filter.query === "adventure" && <Tv className="w-12 h-12 text-white" />}
+                      {filter.query === "platformer" && <Gamepad2 className="w-12 h-12 text-white" />}
+                      {filter.query === "horror" && <MonitorSmartphone className="w-12 h-12 text-white" />}
+                    </div>
+                  </div>
+                  <div className="p-3 text-center">
+                    <p className="text-sm font-medium">{filter.name}</p>
+                  </div>
+                </Card>
+              </div>
             ))}
           </div>
         </div>

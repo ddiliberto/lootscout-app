@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -203,12 +204,16 @@ export default function SearchPage() {
   };
 
   return (
-    <Container>
-      <Header />
-
-
-      {/* Sticky Results Header */}
-      <div className="sticky top-0 bg-white z-10 pt-4 pb-4 border-b mb-6 shadow-sm">
+    <div className="min-h-screen bg-[#FAFAFA]">
+      {/* Combined header and filter section */}
+      <div className="bg-white w-full sticky top-0 z-10 border-b shadow-sm">
+        {/* Navigation header */}
+        <div className="max-w-screen-lg mx-auto px-6 md:px-16 pb-0">
+          <Header className="py-4" />
+        </div>
+        
+        {/* Filter row - no top padding */}
+        <div className="max-w-screen-lg mx-auto px-6 md:px-16 pt-0 pb-4">
         {/* Search Results Info */}
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold">
@@ -259,27 +264,30 @@ export default function SearchPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
       
-      {/* Filter Modal */}
-      <FilterModal
-        isOpen={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        activePlatformFilters={activePlatformFilters}
-        activeGenreFilters={activeGenreFilters}
-        activePriceFilters={activePriceFilters}
-        activeSourceFilters={activeSourceFilters}
-        togglePlatformFilter={togglePlatformFilter}
-        toggleGenreFilter={toggleGenreFilter}
-        togglePriceFilter={togglePriceFilter}
-        toggleSourceFilter={toggleSourceFilter}
-        clearAllFilters={clearAllFilters}
-      />
+      {/* Main Content Container */}
+      <div className="max-w-screen-lg mx-auto px-6 md:px-16 py-6">
+        {/* Filter Modal */}
+        <FilterModal
+          isOpen={showFilterModal}
+          onClose={() => setShowFilterModal(false)}
+          activePlatformFilters={activePlatformFilters}
+          activeGenreFilters={activeGenreFilters}
+          activePriceFilters={activePriceFilters}
+          activeSourceFilters={activeSourceFilters}
+          togglePlatformFilter={togglePlatformFilter}
+          toggleGenreFilter={toggleGenreFilter}
+          togglePriceFilter={togglePriceFilter}
+          toggleSourceFilter={toggleSourceFilter}
+          clearAllFilters={clearAllFilters}
+        />
 
-      {/* Search Results Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {/* Search Results Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {filteredProducts.map((product) => (
-          <Card key={product.id} className="relative flex flex-col hover:shadow-md transition-shadow">
+          <Card key={product.id} className="relative flex flex-col border border-[#EEEEEE] hover:border-gray-300 transition-colors">
             <div className="relative">
               <img
                 src={product.image}
@@ -326,18 +334,20 @@ export default function SearchPage() {
             </CardContent>
           </Card>
         ))}
-      </div>
-
-      {/* No Results */}
-      {filteredProducts.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-lg font-medium">No results found</p>
-          <p className="text-muted-foreground">Try adjusting your search or filters</p>
         </div>
-      )}
+
+        {/* No Results */}
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-lg font-medium">No results found</p>
+            <p className="text-muted-foreground">Try adjusting your search or filters</p>
+          </div>
+        )}
+      </div>
+      
       {/* Floating Search Bar */}
       <div className="fixed bottom-4 left-0 right-0 z-10 px-4 md:px-16 max-w-screen-lg mx-auto">
-        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg">
+        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white border border-[#EEEEEE] px-4 py-2 rounded-full shadow-lg">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search for retro games..."
@@ -350,6 +360,6 @@ export default function SearchPage() {
           </Button>
         </form>
       </div>
-    </Container>
+    </div>
   );
 }

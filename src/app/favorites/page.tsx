@@ -17,7 +17,7 @@ export default function FavoritesPage() {
   if (!isAuthenticated) {
     return (
       <Container>
-        <Header />
+        <Header className="mb-12" />
 
         <div className="text-center max-w-xl mx-auto mt-16">
           <h2 className="text-3xl md:text-4xl font-semibold mb-4">Sign in to view your favorites</h2>
@@ -32,7 +32,7 @@ export default function FavoritesPage() {
 
   return (
     <Container>
-      <Header />
+      <Header className="mb-12" />
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold">Your Favorites</h2>
@@ -54,7 +54,7 @@ export default function FavoritesPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {favorites.map((product) => (
-            <Card key={product.id} className="relative flex flex-col hover:shadow-md transition-shadow">
+            <Card key={product.id} className="relative flex flex-col border border-[#EEEEEE] hover:border-gray-300 transition-colors">
               <div className="relative">
                 <img
                   src={product.image}

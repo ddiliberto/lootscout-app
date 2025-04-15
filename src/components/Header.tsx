@@ -5,12 +5,16 @@ import { Heart, User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 
-export function Header() {
+interface HeaderProps {
+  className?: string;
+}
+
+export function Header({ className = '' }: HeaderProps) {
   const { isAuthenticated, signOut } = useAuth();
   const { favorites } = useFavorites();
 
   return (
-    <div className="flex justify-between items-center mb-12">
+    <div className={`flex justify-between items-center ${className}`}>
       <Link href="/">
         <h1 className="text-xl font-semibold">LootScout</h1>
       </Link>

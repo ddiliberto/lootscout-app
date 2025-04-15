@@ -231,20 +231,75 @@ export const mockProducts: Product[] = [
 
 // Filter options
 export const platformFilters = [
-  { name: "PlayStation 1", query: "ps1" },
-  { name: "Super Nintendo", query: "snes" },
-  { name: "Nintendo 64", query: "n64" },
-  { name: "Game Boy", query: "game boy" },
-  { name: "Genesis", query: "genesis" },
+  { 
+    name: "PlayStation 1", 
+    query: "ps1", 
+    image: "https://via.placeholder.com/300x200?text=PlayStation+1",
+    color: "#5271ff"
+  },
+  { 
+    name: "Super Nintendo", 
+    query: "snes", 
+    image: "https://via.placeholder.com/300x200?text=Super+Nintendo",
+    color: "#ff5757"
+  },
+  { 
+    name: "Nintendo 64", 
+    query: "n64", 
+    image: "https://via.placeholder.com/300x200?text=Nintendo+64",
+    color: "#57c9ff"
+  },
+  { 
+    name: "Game Boy", 
+    query: "game boy", 
+    image: "https://via.placeholder.com/300x200?text=Game+Boy",
+    color: "#57ff8f"
+  },
+  { 
+    name: "Genesis", 
+    query: "genesis", 
+    image: "https://via.placeholder.com/300x200?text=Genesis",
+    color: "#ff57e4"
+  },
 ];
 
 export const genreFilters = [
-  { name: "RPG", query: "rpg" },
-  { name: "Fighting", query: "fighting" },
-  { name: "Action", query: "action" },
-  { name: "Adventure", query: "adventure" },
-  { name: "Platformer", query: "platformer" },
-  { name: "Horror", query: "horror" },
+  { 
+    name: "RPG", 
+    query: "rpg",
+    image: "https://via.placeholder.com/300x200?text=RPG",
+    color: "#ff9f57"
+  },
+  { 
+    name: "Fighting", 
+    query: "fighting",
+    image: "https://via.placeholder.com/300x200?text=Fighting",
+    color: "#ff5757"
+  },
+  { 
+    name: "Action", 
+    query: "action",
+    image: "https://via.placeholder.com/300x200?text=Action",
+    color: "#5271ff"
+  },
+  { 
+    name: "Adventure", 
+    query: "adventure",
+    image: "https://via.placeholder.com/300x200?text=Adventure",
+    color: "#57c9ff"
+  },
+  { 
+    name: "Platformer", 
+    query: "platformer",
+    image: "https://via.placeholder.com/300x200?text=Platformer",
+    color: "#57ff8f"
+  },
+  { 
+    name: "Horror", 
+    query: "horror",
+    image: "https://via.placeholder.com/300x200?text=Horror",
+    color: "#a957ff"
+  },
 ];
 
 export const priceFilters = [
