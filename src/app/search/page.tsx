@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -28,16 +27,25 @@ import {
   placeholderImage,
   type Product
 } from "@/lib/mock-data";
-import { fetchLukieGamesProducts, fetchVGNYProducts, combineProductResults } from "@/lib/scraper";
+import { 
+  fetchLukieGamesProducts, 
+  fetchVGNYProducts, 
+  fetchJJGamesProducts, 
+  fetchDKOldiesProducts, 
+  fetchEbayProducts,
+  combineProductResults 
+} from "@/lib/scraper";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { Header } from "@/components/Header";
 import { Container } from "@/components/Container";
 import { FilterModal } from "@/components/FilterModal";
+import { Spinner } from "@/components/ui/spinner";
+import { Toaster, toast } from "sonner";
 
 export default function SearchPage() {
   const { isAuthenticated } = useAuth();
-  const { isFavorited, addToFavorites, removeFromFavorites } = useFavorites();
+  const { isFavorited: checkIsFavorited, addToFavorites, removeFromFavorites } = useFavorites();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
@@ -48,79 +56,75 @@ export default function SearchPage() {
   const [activeSourceFilters, setActiveSourceFilters] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc" | "newest">("newest");
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch products from LukieGames.com
+  // Fetch products from all sources
   useEffect(() => {
     const fetchData = async () => {
       // Only fetch if there's a query
       if (query) {
+        setIsLoading(true);
         try {
           // Get the active platform filter if any
           const activePlatform = activePlatformFilters.length > 0 ? activePlatformFilters[0] : undefined;
           
-          // Fetch products from scrapers
+          // Fetch products from scrapers and APIs
           const lukieProducts = await fetchLukieGamesProducts(query, activePlatform);
           const vgnyProducts = await fetchVGNYProducts(query, activePlatform);
+          const jjgamesProducts = await fetchJJGamesProducts(query, activePlatform);
+          const dkoldiesProducts = await fetchDKOldiesProducts(query, activePlatform);
+          const ebayProducts = await fetchEbayProducts(query, activePlatform);
           
-          // Filter mock products based on query
-          let mockResults = [...mockProducts];
+          // Log product counts for debugging
+          console.log('Product counts:', {
+            lukieProducts: lukieProducts.length,
+            vgnyProducts: vgnyProducts.length,
+            jjgamesProducts: jjgamesProducts.length,
+            dkoldiesProducts: dkoldiesProducts.length,
+            ebayProducts: ebayProducts.length
+          });
           
           // Handle special keywords
+          let results: Product[] = [];
+          
           if (query.toLowerCase() === "trending") {
             // For trending, we'll just show all products
-            mockResults = [...mockProducts];
+            results = combineProductResults(lukieProducts, vgnyProducts, jjgamesProducts, dkoldiesProducts, ebayProducts);
           } else if (query.toLowerCase() === "under $50") {
             // Filter products under $50
-            mockResults = mockResults.filter(product => 
+            const allProducts = combineProductResults(lukieProducts, vgnyProducts, jjgamesProducts, dkoldiesProducts, ebayProducts);
+            results = allProducts.filter(product => 
               parseFloat(product.price.replace('$', '')) < 50
             );
           } else if (query.toLowerCase() === "sealed") {
             // Filter products that mention "sealed" in title or description
-            mockResults = mockResults.filter(product => 
+            const allProducts = combineProductResults(lukieProducts, vgnyProducts, jjgamesProducts, dkoldiesProducts, ebayProducts);
+            results = allProducts.filter(product => 
               product.title.toLowerCase().includes("sealed") || 
               product.description.toLowerCase().includes("sealed") ||
               product.description.toLowerCase().includes("complete in box")
             );
           } else if (query.toLowerCase() === "rare") {
             // Filter products that are considered rare (in this case, over $100)
-            mockResults = mockResults.filter(product => 
+            const allProducts = combineProductResults(lukieProducts, vgnyProducts, jjgamesProducts, dkoldiesProducts, ebayProducts);
+            results = allProducts.filter(product => 
               parseFloat(product.price.replace('$', '')) > 100
             );
           } else {
-            // Regular search query
-            mockResults = mockResults.filter(
-              (product) =>
-                product.title.toLowerCase().includes(query.toLowerCase()) ||
-                product.description.toLowerCase().includes(query.toLowerCase())
-            );
-          }
-          
-          // Combine results from all sources
-          let combinedResults = combineProductResults(mockResults, lukieProducts, vgnyProducts);
-          
-          // Apply additional filters
-          applyFilters(combinedResults);
-        } catch (error) {
-          console.error("Error fetching products:", error);
-          // Fall back to mock data only
-          let results = [...mockProducts];
-          
-          // Apply query filter to mock data
-          if (query) {
-            // Regular search query
-            results = results.filter(
-              (product) =>
-                product.title.toLowerCase().includes(query.toLowerCase()) ||
-                product.description.toLowerCase().includes(query.toLowerCase())
-            );
+            // Regular search query - combine all results
+            results = combineProductResults(lukieProducts, vgnyProducts, jjgamesProducts, dkoldiesProducts, ebayProducts);
           }
           
           // Apply additional filters
           applyFilters(results);
+        } catch (error) {
+          console.error("Error fetching products:", error);
+          setFilteredProducts([]);
+        } finally {
+          setIsLoading(false);
         }
       } else {
-        // No query, just use mock data
-        applyFilters([...mockProducts]);
+        setFilteredProducts([]);
       }
     };
     
@@ -275,163 +279,132 @@ export default function SearchPage() {
     setActiveSourceFilters([]);
   };
 
+  // Handle adding to favorites with toast notification
+  const handleAddToFavorites = async (product: Product) => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to add items to favorites");
+      return;
+    }
+
+    const isProductFavorited = checkIsFavorited(product.id);
+    
+    if (isProductFavorited) {
+      await removeFromFavorites(product.id);
+      toast.success("Removed from favorites");
+    } else {
+      await addToFavorites(product);
+      toast.success("Added to favorites");
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      {/* Combined header and filter section */}
-      <div className="bg-white w-full sticky top-0 z-10 border-b shadow-sm">
-        {/* Navigation header */}
-        <div className="max-w-screen-lg mx-auto px-6 md:px-16 pb-0">
-          <Header className="py-4" />
-        </div>
-        
-        {/* Filter row - no top padding */}
-        <div className="max-w-screen-lg mx-auto px-6 md:px-16 pt-0 pb-4">
-        {/* Search Results Info */}
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-semibold">
-            {query ? `Results for "${query}"` : "All Results"}
-            <span className="text-sm font-normal text-muted-foreground ml-2">
-              ({filteredProducts.length} items)
-            </span>
-          </h2>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-1"
-              onClick={() => setShowFilterModal(true)}
-            >
-              <Filter className="h-4 w-4" />
-              Filter
-            </Button>
-            <div className="relative">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-1"
-                onClick={() => {
-                  if (sortOrder === "newest") setSortOrder("price-asc");
-                  else if (sortOrder === "price-asc") setSortOrder("price-desc");
-                  else setSortOrder("newest");
-                }}
-              >
-                <ArrowUpDown className="h-4 w-4" />
-                {sortOrder === "newest" ? "Newest" : 
-                 sortOrder === "price-asc" ? "Price: Low to High" : 
-                 "Price: High to Low"}
-              </Button>
-            </div>
-          </div>
-        </div>
+    <Container>
+      <Header className="mb-12" />
+      <FilterModal
+        isOpen={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        activePlatformFilters={activePlatformFilters}
+        activeGenreFilters={activeGenreFilters}
+        activePriceFilters={activePriceFilters}
+        activeSourceFilters={activeSourceFilters}
+        togglePlatformFilter={togglePlatformFilter}
+        toggleGenreFilter={toggleGenreFilter}
+        togglePriceFilter={togglePriceFilter}
+        toggleSourceFilter={toggleSourceFilter}
+        clearAllFilters={clearAllFilters}
+      />
+      <Toaster 
+        position="top-right"
+        className="md:right-4 md:top-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:top-4"
+      />
 
-        {/* Display active filter count if any filters are applied */}
-        {(activePlatformFilters.length > 0 || 
-          activeGenreFilters.length > 0 || 
-          activePriceFilters.length > 0 || 
-          activeSourceFilters.length > 0) && (
-          <div>
-            <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
-              {activePlatformFilters.length + activeGenreFilters.length + 
-               activePriceFilters.length + activeSourceFilters.length} filters applied
-            </div>
-          </div>
-        )}
-        </div>
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold">Search Results</h2>
+        <p className="text-muted-foreground">
+          {query ? `Results for "${query}"` : "Enter a search term to find games"}
+        </p>
       </div>
-      
-      {/* Main Content Container */}
-      <div className="max-w-screen-lg mx-auto px-6 md:px-16 py-6">
-        {/* Filter Modal */}
-        <FilterModal
-          isOpen={showFilterModal}
-          onClose={() => setShowFilterModal(false)}
-          activePlatformFilters={activePlatformFilters}
-          activeGenreFilters={activeGenreFilters}
-          activePriceFilters={activePriceFilters}
-          activeSourceFilters={activeSourceFilters}
-          togglePlatformFilter={togglePlatformFilter}
-          toggleGenreFilter={toggleGenreFilter}
-          togglePriceFilter={togglePriceFilter}
-          toggleSourceFilter={toggleSourceFilter}
-          clearAllFilters={clearAllFilters}
+
+      <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white border border-[#EEEEEE] px-4 py-2 rounded-full mb-8 max-w-xl mx-auto">
+        <Button type="button" variant="ghost" size="icon" onClick={() => setShowFilterModal(true)}>
+          <Filter className="h-4 w-4 text-muted-foreground" />
+        </Button>
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Try 'sealed EarthBound SNES' or 'Castlevania PS1'"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border-none bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
         />
+        <Button type="submit" variant="ghost" size="icon">
+          <Search className="h-4 w-4" />
+        </Button>
+      </form>
 
-        {/* Search Results Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-        {filteredProducts.map((product) => (
-          <Card key={product.id} className="relative flex flex-col border border-[#EEEEEE] hover:border-gray-300 transition-colors">
-            <div className="relative">
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-full h-40 md:h-64 object-cover"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 text-white bg-black/40 hover:bg-black/60"
-                onClick={() => {
-                  if (isAuthenticated) {
-                    if (isFavorited(product.id)) {
-                      removeFromFavorites(product.id);
-                    } else {
-                      addToFavorites(product);
-                    }
-                  } else {
-                    // Redirect to auth page if not authenticated
-                    window.location.href = '/auth';
-                  }
-                }}
-              >
-                <Heart className={`h-5 w-5 ${isFavorited(product.id) ? 'fill-current' : ''}`} />
-              </Button>
-              <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
-                {product.source}
-              </div>
-            </div>
-            <CardHeader className="p-3 md:p-6">
-              <CardTitle className="text-xs md:text-sm font-medium leading-snug">{product.title}</CardTitle>
-              <CardDescription className="text-xs text-muted-foreground line-clamp-2">
-                {product.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="mt-auto p-3 md:p-6 pt-0 md:pt-0">
-              <p className="text-sm font-semibold">{product.price}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {product.condition} • {product.time}
-              </p>
-              <a href={product.url} className="text-xs text-primary mt-2 block">
-                Click for details
-              </a>
-            </CardContent>
-          </Card>
-        ))}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Spinner size="lg" className="mb-4" />
+          <p className="text-muted-foreground">Searching across all stores...</p>
         </div>
-
-        {/* No Results */}
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-lg font-medium">No results found</p>
-            <p className="text-muted-foreground">Try adjusting your search or filters</p>
-          </div>
-        )}
-      </div>
-      
-      {/* Floating Search Bar */}
-      <div className="fixed bottom-4 left-0 right-0 z-10 px-4 md:px-16 max-w-screen-lg mx-auto">
-        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white border border-[#EEEEEE] px-4 py-2 rounded-full shadow-lg">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search for retro games..."
-            className="border-none bg-transparent text-sm"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button type="submit" variant="ghost" size="icon">
-            <Search className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
-    </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="text-center py-12">
+          <h3 className="text-lg font-medium mb-2">No results found</h3>
+          <p className="text-muted-foreground mb-6">
+            Try adjusting your search or filters to find what you're looking for.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <Card key={product.id} className="relative flex flex-col border border-[#EEEEEE] hover:border-gray-300 transition-colors">
+              <a 
+                href={product.url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="block h-full"
+              >
+                <div className="relative">
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    className="w-full h-40 md:h-64 object-cover"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 text-white bg-black/40 hover:bg-black/60"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent the card link from being triggered
+                      handleAddToFavorites(product);
+                    }}
+                  >
+                    <Heart className={`h-5 w-5 ${checkIsFavorited(product.id) ? 'fill-current' : ''}`} />
+                  </Button>
+                  <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
+                    {product.source}
+                  </div>
+                </div>
+                <CardHeader className="p-3 md:p-6">
+                  <CardTitle className="text-xs md:text-sm font-medium leading-snug">{product.title}</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground line-clamp-2">
+                    {product.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="mt-auto p-3 md:p-6 pt-0 md:pt-0">
+                  <p className="text-sm font-semibold">{product.price}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {product.condition} • {product.time}
+                  </p>
+                  <span className="text-xs text-primary mt-2 block">
+                    View on {product.source} →
+                  </span>
+                </CardContent>
+              </a>
+            </Card>
+          ))}
+        </div>
+      )}
+    </Container>
   );
 }

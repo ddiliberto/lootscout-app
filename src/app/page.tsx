@@ -22,11 +22,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { 
-  trendingProducts, 
   platformFilters,
   genreFilters,
   priceFilters,
   placeholderImage,
+  type Product,
   type TrendingProduct
 } from "@/lib/mock-data";
 import { useAuth } from "@/context/AuthContext";
@@ -35,6 +35,94 @@ import { Header } from "@/components/Header";
 import { Container } from "@/components/Container";
 import { Carousel } from "@/components/Carousel";
 import { FullWidthSection } from "@/components/FullWidthSection";
+
+// Sample trending products for the homepage
+const trendingProducts: TrendingProduct[] = [
+  {
+    id: "trending-1",
+    title: "Earthbound (SNES)",
+    description: "Cartridge Only",
+    price: "$250",
+    source: "LukieGames",
+    time: "1 hour ago",
+    image: placeholderImage,
+    condition: "Good",
+    url: "/search?q=earthbound",
+    platform: "snes",
+    genre: "rpg",
+    searchCount: 1240
+  },
+  {
+    id: "trending-2",
+    title: "Final Fantasy VII (PS1)",
+    description: "Black Label Original",
+    price: "$65",
+    source: "JJGames",
+    time: "5 hours ago",
+    image: placeholderImage,
+    condition: "Very Good",
+    url: "/search?q=final+fantasy+vii",
+    platform: "ps1",
+    genre: "rpg",
+    searchCount: 980
+  },
+  {
+    id: "trending-3",
+    title: "The Legend of Zelda: Ocarina of Time (N64)",
+    description: "Complete with Manual",
+    price: "$75",
+    source: "VGNY",
+    time: "12 hours ago",
+    image: placeholderImage,
+    condition: "Very Good",
+    url: "/search?q=zelda+ocarina",
+    platform: "n64",
+    genre: "adventure",
+    searchCount: 875
+  },
+  {
+    id: "trending-4",
+    title: "Chrono Trigger (SNES)",
+    description: "Complete in Box",
+    price: "$180",
+    source: "DKOldies",
+    time: "3 hours ago",
+    image: placeholderImage,
+    condition: "Good",
+    url: "/search?q=chrono+trigger",
+    platform: "snes",
+    genre: "rpg",
+    searchCount: 760
+  },
+  {
+    id: "trending-5",
+    title: "Castlevania: Symphony of the Night (PS1)",
+    description: "Greatest Hits Version",
+    price: "$85",
+    source: "LukieGames",
+    time: "3 days ago",
+    image: placeholderImage,
+    condition: "Very Good",
+    url: "/search?q=castlevania+symphony",
+    platform: "ps1",
+    genre: "action",
+    searchCount: 650
+  },
+  {
+    id: "trending-6",
+    title: "Pokémon Red Version (Game Boy)",
+    description: "Authentic Cartridge",
+    price: "$45",
+    source: "JJGames",
+    time: "2 days ago",
+    image: placeholderImage,
+    condition: "Used",
+    url: "/search?q=pokemon+red",
+    platform: "game boy",
+    genre: "rpg",
+    searchCount: 540
+  }
+];
 
 export default function LootScoutHomepage() {
   const { isAuthenticated } = useAuth();

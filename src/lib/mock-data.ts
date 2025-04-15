@@ -4,7 +4,7 @@ export type Product = {
   title: string;
   description: string;
   price: string;
-  source: "eBay" | "Mercari" | "Poshmark" | "Etsy" | "LukieGames" | "VGNY";
+  source: "eBay" | "Mercari" | "Poshmark" | "Etsy" | "LukieGames" | "VGNY" | "JJGames" | "DKOldies";
   time: string;
   image: string;
   condition: string;
@@ -17,217 +17,8 @@ export type Product = {
 export const placeholderImage =
   "https://via.placeholder.com/300x300?text=No+Image";
 
-// Mock data for search results
-export const mockProducts: Product[] = [
-  {
-    id: "1",
-    title: "Chrono Trigger (SNES)",
-    description: "Complete in Box",
-    price: "$180",
-    source: "eBay",
-    time: "3 hours ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "snes",
-    genre: "rpg",
-  },
-  {
-    id: "2",
-    title: "Metal Gear Solid (PS1)",
-    description: "Good Condition",
-    price: "$24",
-    source: "Mercari",
-    time: "2 hours ago",
-    image: placeholderImage,
-    condition: "Used",
-    url: "#",
-    platform: "ps1",
-    genre: "action",
-  },
-  {
-    id: "3",
-    title: "Final Fantasy VII (PS1)",
-    description: "Black Label Original",
-    price: "$65",
-    source: "eBay",
-    time: "5 hours ago",
-    image: placeholderImage,
-    condition: "Very Good",
-    url: "#",
-    platform: "ps1",
-    genre: "rpg",
-  },
-  {
-    id: "4",
-    title: "Super Mario 64 (N64)",
-    description: "Cartridge Only",
-    price: "$35",
-    source: "Mercari",
-    time: "1 day ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "n64",
-    genre: "platformer",
-  },
-  {
-    id: "5",
-    title: "The Legend of Zelda: Ocarina of Time (N64)",
-    description: "Complete with Manual",
-    price: "$75",
-    source: "Poshmark",
-    time: "12 hours ago",
-    image: placeholderImage,
-    condition: "Very Good",
-    url: "#",
-    platform: "n64",
-    genre: "adventure",
-  },
-  {
-    id: "6",
-    title: "Pokémon Red Version (Game Boy)",
-    description: "Authentic Cartridge",
-    price: "$45",
-    source: "Etsy",
-    time: "2 days ago",
-    image: placeholderImage,
-    condition: "Used",
-    url: "#",
-    platform: "game boy",
-    genre: "rpg",
-  },
-  {
-    id: "7",
-    title: "Resident Evil 2 (PS1)",
-    description: "Dual Shock Edition",
-    price: "$40",
-    source: "eBay",
-    time: "6 hours ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "ps1",
-    genre: "horror",
-  },
-  {
-    id: "8",
-    title: "Super Smash Bros. (N64)",
-    description: "Tested & Working",
-    price: "$50",
-    source: "Mercari",
-    time: "1 day ago",
-    image: placeholderImage,
-    condition: "Fair",
-    url: "#",
-    platform: "n64",
-    genre: "fighting",
-  },
-  {
-    id: "9",
-    title: "Castlevania: Symphony of the Night (PS1)",
-    description: "Greatest Hits Version",
-    price: "$85",
-    source: "Poshmark",
-    time: "3 days ago",
-    image: placeholderImage,
-    condition: "Very Good",
-    url: "#",
-    platform: "ps1",
-    genre: "action",
-  },
-  {
-    id: "10",
-    title: "Earthbound (SNES)",
-    description: "Cartridge Only",
-    price: "$250",
-    source: "eBay",
-    time: "1 hour ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "snes",
-    genre: "rpg",
-  },
-  {
-    id: "11",
-    title: "Mega Man X (SNES)",
-    description: "With Original Box",
-    price: "$120",
-    source: "Etsy",
-    time: "4 days ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "snes",
-    genre: "action",
-  },
-  {
-    id: "12",
-    title: "Sonic the Hedgehog 2 (Genesis)",
-    description: "Complete in Box",
-    price: "$30",
-    source: "Mercari",
-    time: "2 days ago",
-    image: placeholderImage,
-    condition: "Very Good",
-    url: "#",
-    platform: "genesis",
-    genre: "platformer",
-  },
-  {
-    id: "13",
-    title: "Street Fighter II Turbo (SNES)",
-    description: "Box and Manual Included",
-    price: "$55",
-    source: "eBay",
-    time: "8 hours ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "snes",
-    genre: "fighting",
-  },
-  {
-    id: "14",
-    title: "Crash Bandicoot (PS1)",
-    description: "Original Black Label",
-    price: "$28",
-    source: "Mercari",
-    time: "3 days ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "ps1",
-    genre: "platformer",
-  },
-  {
-    id: "15",
-    title: "The Legend of Zelda: A Link to the Past (SNES)",
-    description: "Cartridge Only",
-    price: "$40",
-    source: "Poshmark",
-    time: "5 days ago",
-    image: placeholderImage,
-    condition: "Fair",
-    url: "#",
-    platform: "snes",
-    genre: "adventure",
-  },
-  {
-    id: "16",
-    title: "Donkey Kong 64 (N64)",
-    description: "With Expansion Pak",
-    price: "$60",
-    source: "Etsy",
-    time: "1 week ago",
-    image: placeholderImage,
-    condition: "Good",
-    url: "#",
-    platform: "n64",
-    genre: "platformer",
-  },
-];
+// Empty array for search results - no more mock data
+export const mockProducts: Product[] = [];
 
 // Filter options
 export const platformFilters = [
@@ -316,18 +107,14 @@ export const sourceFilters = [
   { name: "Etsy", query: "etsy" },
   { name: "LukieGames", query: "lukiegames" },
   { name: "VGNY", query: "vgny" },
+  { name: "JJGames", query: "jjgames" },
+  { name: "DKOldies", query: "dkoldies" },
 ];
 
-// Trending products for homepage (simulating most searched items)
+// Trending products interface
 export interface TrendingProduct extends Product {
   searchCount: number;
 }
 
-export const trendingProducts: TrendingProduct[] = [
-  { ...mockProducts[9], searchCount: 1240 },  // Earthbound
-  { ...mockProducts[2], searchCount: 980 },   // Final Fantasy VII
-  { ...mockProducts[4], searchCount: 875 },   // Zelda: Ocarina of Time
-  { ...mockProducts[0], searchCount: 760 },   // Chrono Trigger
-  { ...mockProducts[8], searchCount: 650 },   // Castlevania: SOTN
-  { ...mockProducts[5], searchCount: 540 }    // Pokémon Red
-];
+// Empty array for trending products - no more mock data
+export const trendingProducts: TrendingProduct[] = [];

@@ -1,14 +1,15 @@
 # LootScout
 
-LootScout is a web app that searches across secondhand marketplaces like eBay, Mercari, Etsy, Poshmark, and Facebook Marketplace to surface deals on retro and collectible video games.
+LootScout is a web app that searches across secondhand marketplaces and retro game stores like LukieGames, VGNY, JJGames, and DKOldies to surface deals on retro and collectible video games.
 
 ## Features
 
-- Search across multiple marketplaces for retro games
+- Search across multiple retro game stores
 - Filter by platform, genre, price, and source
 - Sort results by price or recency
 - Save favorite listings
 - Track search history
+- Real-time scraping of multiple retro game websites
 
 ## Tech Stack
 
@@ -16,6 +17,8 @@ LootScout is a web app that searches across secondhand marketplaces like eBay, M
 - Tailwind CSS + ShadCN UI
 - Lucide React Icons
 - TypeScript
+- Python (for web scrapers)
+- Beautiful Soup 4
 
 ## Getting Started
 
@@ -41,12 +44,14 @@ npm run dev
 
 - `src/app/page.tsx` - Homepage
 - `src/app/search/page.tsx` - Search results page
+- `src/app/api/scrape/` - API routes for scrapers
 - `src/components/ui/` - UI components from ShadCN
-- `src/lib/mock-data.ts` - Mock data for development
+- `src/lib/scraper.ts` - Scraper utility functions
+- `scripts/` - Python scraper scripts
 
 ## Current Status
 
-This project is currently in development. The homepage and search page UI are complete, with mock data for demonstration purposes. Future development will include integration with actual marketplace APIs.
+This project is currently in development. The homepage and search page UI are complete, with real-time data from multiple retro game stores (LukieGames, VGNY, JJGames, and DKOldies). Future development will include integration with marketplace APIs like eBay, Mercari, and Etsy.
 
 ## License
 

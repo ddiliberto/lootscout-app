@@ -14,6 +14,26 @@ pip install -r requirements.txt
 
 ## Available Scrapers
 
+### JJGames.com Scraper
+
+The `scrape_jjgames.py` script scrapes product information from JJGames.com.
+
+#### Usage
+
+You can run the script directly from the command line:
+
+```bash
+python scrape_jjgames.py --query "zelda" --platform "n64" --max_results 10 --debug
+```
+
+Parameters:
+- `--query`: Search term (required)
+- `--platform`: Game platform (optional, e.g., "ps1", "snes")
+- `--max_results`: Maximum number of results to return (optional, default: 16)
+- `--debug`: Enable debug mode for additional output (optional)
+
+The script outputs JSON data to stdout.
+
 ### LukieGames.com Scraper
 
 The `scrape_lukie_games.py` script scrapes product information from LukieGames.com.
