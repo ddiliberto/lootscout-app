@@ -28,6 +28,7 @@ import {
   placeholderImage,
   type Product
 } from "@/lib/mock-data";
+import { fetchLukieGamesProducts, combineProductResults } from "@/lib/scraper";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { Header } from "@/components/Header";
@@ -48,42 +49,85 @@ export default function SearchPage() {
   const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc" | "newest">("newest");
   const [showFilterModal, setShowFilterModal] = useState(false);
 
-  // Filter products based on search query and active filters
+  // Fetch products from LukieGames.com
   useEffect(() => {
-    let results = [...mockProducts];
-    
-    // Filter by search query
-    if (query) {
-      // Handle special keywords
-      if (query.toLowerCase() === "trending") {
-        // For trending, we'll just show all products (in a real app, this would be based on popularity)
-        results = [...mockProducts];
-      } else if (query.toLowerCase() === "under $50") {
-        // Filter products under $50
-        results = results.filter(product => 
-          parseFloat(product.price.replace('$', '')) < 50
-        );
-      } else if (query.toLowerCase() === "sealed") {
-        // Filter products that mention "sealed" in title or description
-        results = results.filter(product => 
-          product.title.toLowerCase().includes("sealed") || 
-          product.description.toLowerCase().includes("sealed") ||
-          product.description.toLowerCase().includes("complete in box")
-        );
-      } else if (query.toLowerCase() === "rare") {
-        // Filter products that are considered rare (in this case, over $100)
-        results = results.filter(product => 
-          parseFloat(product.price.replace('$', '')) > 100
-        );
+    const fetchData = async () => {
+      // Only fetch if there's a query
+      if (query) {
+        try {
+          // Get the active platform filter if any
+          const activePlatform = activePlatformFilters.length > 0 ? activePlatformFilters[0] : undefined;
+          
+          // Fetch products from LukieGames
+          const lukieProducts = await fetchLukieGamesProducts(query, activePlatform);
+          
+          // Filter mock products based on query
+          let mockResults = [...mockProducts];
+          
+          // Handle special keywords
+          if (query.toLowerCase() === "trending") {
+            // For trending, we'll just show all products
+            mockResults = [...mockProducts];
+          } else if (query.toLowerCase() === "under $50") {
+            // Filter products under $50
+            mockResults = mockResults.filter(product => 
+              parseFloat(product.price.replace('$', '')) < 50
+            );
+          } else if (query.toLowerCase() === "sealed") {
+            // Filter products that mention "sealed" in title or description
+            mockResults = mockResults.filter(product => 
+              product.title.toLowerCase().includes("sealed") || 
+              product.description.toLowerCase().includes("sealed") ||
+              product.description.toLowerCase().includes("complete in box")
+            );
+          } else if (query.toLowerCase() === "rare") {
+            // Filter products that are considered rare (in this case, over $100)
+            mockResults = mockResults.filter(product => 
+              parseFloat(product.price.replace('$', '')) > 100
+            );
+          } else {
+            // Regular search query
+            mockResults = mockResults.filter(
+              (product) =>
+                product.title.toLowerCase().includes(query.toLowerCase()) ||
+                product.description.toLowerCase().includes(query.toLowerCase())
+            );
+          }
+          
+          // Combine results from both sources
+          let combinedResults = combineProductResults(mockResults, lukieProducts);
+          
+          // Apply additional filters
+          applyFilters(combinedResults);
+        } catch (error) {
+          console.error("Error fetching products:", error);
+          // Fall back to mock data only
+          let results = [...mockProducts];
+          
+          // Apply query filter to mock data
+          if (query) {
+            // Regular search query
+            results = results.filter(
+              (product) =>
+                product.title.toLowerCase().includes(query.toLowerCase()) ||
+                product.description.toLowerCase().includes(query.toLowerCase())
+            );
+          }
+          
+          // Apply additional filters
+          applyFilters(results);
+        }
       } else {
-        // Regular search query
-        results = results.filter(
-          (product) =>
-            product.title.toLowerCase().includes(query.toLowerCase()) ||
-            product.description.toLowerCase().includes(query.toLowerCase())
-        );
+        // No query, just use mock data
+        applyFilters([...mockProducts]);
       }
-    }
+    };
+    
+    fetchData();
+  }, [query, activePlatformFilters, activeGenreFilters, activePriceFilters, activeSourceFilters]);
+  
+  // Apply filters to the product list
+  const applyFilters = (results: Product[]) => {
     
     // Apply platform filters
     if (activePlatformFilters.length > 0) {
@@ -150,7 +194,34 @@ export default function SearchPage() {
     }
     
     setFilteredProducts(results);
-  }, [query, activePlatformFilters, activeGenreFilters, activePriceFilters, activeSourceFilters, sortOrder]);
+  };
+  
+  // Apply sorting when sort order changes
+  useEffect(() => {
+    setFilteredProducts(prevProducts => {
+      const sortedProducts = [...prevProducts];
+      
+      if (sortOrder === "price-asc") {
+        sortedProducts.sort((a, b) => 
+          parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', ''))
+        );
+      } else if (sortOrder === "price-desc") {
+        sortedProducts.sort((a, b) => 
+          parseFloat(b.price.replace('$', '')) - parseFloat(a.price.replace('$', ''))
+        );
+      } else if (sortOrder === "newest") {
+        sortedProducts.sort((a, b) => {
+          if (a.time.includes("hour") && !b.time.includes("hour")) return -1;
+          if (!a.time.includes("hour") && b.time.includes("hour")) return 1;
+          if (a.time.includes("day") && b.time.includes("week")) return -1;
+          if (a.time.includes("week") && b.time.includes("day")) return 1;
+          return 0;
+        });
+      }
+      
+      return sortedProducts;
+    });
+  }, [sortOrder]);
 
   // Handle search form submission
   const handleSearch = (e: React.FormEvent) => {
