@@ -33,6 +33,25 @@ Parameters:
 
 The script outputs JSON data to stdout.
 
+### VideoGamesNewYork.com Scraper
+
+The `scrape_vgny.py` script scrapes product information from VideoGamesNewYork.com.
+
+#### Usage
+
+You can run the script directly from the command line:
+
+```bash
+python scrape_vgny.py --query "metal gear" --platform "ps1" --max_results 10
+```
+
+Parameters:
+- `--query`: Search term (required)
+- `--platform`: Game platform (optional, e.g., "ps1", "snes")
+- `--max_results`: Maximum number of results to return (optional, default: 16)
+
+The script outputs JSON data to stdout.
+
 ## Integration with Next.js
 
 The scrapers are integrated with the LootScout app through Next.js API routes. The API routes handle:

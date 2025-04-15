@@ -4,7 +4,7 @@ export type Product = {
   title: string;
   description: string;
   price: string;
-  source: "eBay" | "Mercari" | "Poshmark" | "Etsy" | "LukieGames";
+  source: "eBay" | "Mercari" | "Poshmark" | "Etsy" | "LukieGames" | "VGNY";
   time: string;
   image: string;
   condition: string;
@@ -315,6 +315,7 @@ export const sourceFilters = [
   { name: "Poshmark", query: "poshmark" },
   { name: "Etsy", query: "etsy" },
   { name: "LukieGames", query: "lukiegames" },
+  { name: "VGNY", query: "vgny" },
 ];
 
 // Trending products for homepage (simulating most searched items)

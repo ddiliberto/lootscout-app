@@ -28,7 +28,7 @@ import {
   placeholderImage,
   type Product
 } from "@/lib/mock-data";
-import { fetchLukieGamesProducts, combineProductResults } from "@/lib/scraper";
+import { fetchLukieGamesProducts, fetchVGNYProducts, combineProductResults } from "@/lib/scraper";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { Header } from "@/components/Header";
@@ -58,8 +58,9 @@ export default function SearchPage() {
           // Get the active platform filter if any
           const activePlatform = activePlatformFilters.length > 0 ? activePlatformFilters[0] : undefined;
           
-          // Fetch products from LukieGames
+          // Fetch products from scrapers
           const lukieProducts = await fetchLukieGamesProducts(query, activePlatform);
+          const vgnyProducts = await fetchVGNYProducts(query, activePlatform);
           
           // Filter mock products based on query
           let mockResults = [...mockProducts];
@@ -94,8 +95,8 @@ export default function SearchPage() {
             );
           }
           
-          // Combine results from both sources
-          let combinedResults = combineProductResults(mockResults, lukieProducts);
+          // Combine results from all sources
+          let combinedResults = combineProductResults(mockResults, lukieProducts, vgnyProducts);
           
           // Apply additional filters
           applyFilters(combinedResults);
