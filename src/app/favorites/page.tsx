@@ -112,7 +112,7 @@ export default function FavoritesPage() {
                 }}
                 className="absolute top-2 left-2 sm:left-auto sm:right-2 p-2 bg-black rounded-full hover:bg-black/80 transition-colors z-10"
               >
-                <Heart className="h-4 w-4 text-white" />
+                <Heart className="h-4 w-4 text-white fill-white" />
               </button>
             </Card>
           ))}

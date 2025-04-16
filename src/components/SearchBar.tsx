@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
@@ -10,6 +10,13 @@ export function SearchBar() {
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const router = useRouter();
+  const pathname = usePathname();
+  
+  // Hide the search bar on the homepage and pricing page
+  const hiddenPages = ['/', '/pricing'];
+  if (hiddenPages.includes(pathname)) {
+    return null;
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

@@ -495,8 +495,9 @@ export default function SearchPage() {
                     }}
                     className="absolute top-2 left-2 sm:left-auto sm:right-2 p-2 bg-black rounded-full hover:bg-black/80 transition-colors z-10"
                   >
-                    <Heart className={cn("h-4 w-4 text-white", {
-                      "text-red-500 fill-red-500": checkIsFavorited(product.id)
+                    <Heart className={cn("h-4 w-4", {
+                      "text-white fill-white": checkIsFavorited(product.id),
+                      "text-white": !checkIsFavorited(product.id)
                     })} />
                   </button>
                 </Card>

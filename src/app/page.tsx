@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { type TrendingProduct } from "@/lib/mock-data";
 import { Container } from "@/components/Container";
+import Link from "next/link";
 
 // Sample trending searches
 const trendingSearches = [
@@ -109,6 +110,23 @@ export default function LootScoutHomepage() {
         <p className="text-lg text-muted-foreground font-light mb-6">
           Search second hand sites in for used games, sealed copies,<br />and collector gold — before they disappear.
         </p>
+        
+        {/* Search Bar */}
+        <form 
+          onSubmit={handleSearch} 
+          className="mx-auto w-full max-w-md flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-3 rounded-[10px] shadow-xl mb-8"
+        >
+          <Input
+            type="text"
+            placeholder="Search games, e.g. 'EarthBound SNES'"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border-none bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 min-w-0"
+          />
+          <Button type="submit" variant="ghost" size="icon" className="p-1">
+            <Search className="h-4 w-4" />
+          </Button>
+        </form>
       </section>
 
       {/* Trending Searches */}
@@ -175,7 +193,12 @@ export default function LootScoutHomepage() {
 
       {/* Pricing */}
       <section className="max-w-3xl mx-auto mb-20">
-        <h2 className="text-center text-2xl font-light mb-8">Pricing</h2>
+        <Link 
+          href="/pricing" 
+          className="inline-block w-full text-center hover:opacity-80 transition-opacity"
+        >
+          <h2 className="text-center text-2xl font-light mb-8">Upgrade</h2>
+        </Link>
         <div className="grid md:grid-cols-2 gap-8">
           <div className="border rounded-lg p-6 bg-white">
             <h3 className="text-xl font-light mb-4">Free</h3>
