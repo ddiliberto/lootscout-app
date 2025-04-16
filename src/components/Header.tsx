@@ -1,4 +1,7 @@
+"use client";
+
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Heart, User } from 'lucide-react';
@@ -13,41 +16,43 @@ interface HeaderProps {
 export function Header({ className = '' }: HeaderProps) {
   const { isAuthenticated, signOut } = useAuth();
   const { favorites } = useFavorites();
+  const pathname = usePathname();
 
   return (
-    <header className={cn("sticky top-0 z-50 w-full flex items-center justify-between py-6 px-4 md:px-8 bg-white", className)}>
-      <Link href="/">
-        <h1 className="text-xl font-semibold">LootScout</h1>
-      </Link>
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" className="text-sm" asChild>
-          <Link href="/pricing">Pricing</Link>
-        </Button>
-        
-        {isAuthenticated ? (
-          <>
-            <Button variant="ghost" className="text-sm relative" asChild>
-              <Link href="/favorites">
-                <Heart className="w-4 h-4 mr-1" />
+    <div className="sticky top-4 z-50 mx-auto w-[90%] max-w-md bg-white/90 backdrop-blur-md rounded-[10px] shadow-xl">
+      <header className={cn("flex flex-row items-center justify-between h-16 px-4", className)}>
+        <Link href="/">
+          <h1 className="text-xl font-semibold">LootScout</h1>
+        </Link>
+        <div className="flex items-center gap-4 text-xs">
+          <Link href="/pricing" className="text-xs hover:text-gray-600 transition-colors">
+            Pricing
+          </Link>
+          
+          {isAuthenticated ? (
+            <>
+              <Link href="/favorites" className="text-xs hover:text-gray-600 transition-colors relative">
                 Favorites
                 {favorites.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] rounded-full w-3 h-3 flex items-center justify-center">
                     {favorites.length}
                   </span>
                 )}
               </Link>
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => signOut()}>
-              <User className="w-4 h-4 mr-1" />
-              Sign Out
-            </Button>
-          </>
-        ) : (
-          <Button variant="default" size="sm" asChild>
-            <Link href="/auth">Sign In</Link>
-          </Button>
-        )}
-      </div>
-    </header>
+              <button 
+                onClick={() => signOut()} 
+                className="text-xs hover:text-gray-600 transition-colors"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <Link href="/auth" className="text-xs hover:text-gray-600 transition-colors">
+              Sign In
+            </Link>
+          )}
+        </div>
+      </header>
+    </div>
   );
 }

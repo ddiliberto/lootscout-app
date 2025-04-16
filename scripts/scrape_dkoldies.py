@@ -86,6 +86,21 @@ async def search_dkoldies(query, platform=None, max_results=16):
                     if platform and platform.lower() not in product_name.lower():
                         continue
                     
+                    # Check if product is out of stock
+                    is_out_of_stock = False
+                    out_of_stock_elem = product_elem.select_one('.productCard-outOfStockBadge, .out-of-stock, .sold-out')
+                    if out_of_stock_elem:
+                        is_out_of_stock = True
+                    
+                    # Also check if "Out of Stock" text appears in the product card
+                    if "out of stock" in product_elem.text.lower() or "sold out" in product_elem.text.lower():
+                        is_out_of_stock = True
+                    
+                    # Skip out-of-stock products
+                    if is_out_of_stock:
+                        print(f"Skipping out of stock product: {product_name}", file=sys.stderr)
+                        continue
+                    
                     # URL
                     product_url = title_elem['href'] if 'href' in title_elem.attrs else ""
                     if product_url and not product_url.startswith('http'):

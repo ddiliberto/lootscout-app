@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   Card,
@@ -16,6 +16,7 @@ import {
   Heart,
   ArrowUpDown,
   Filter,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { 
@@ -37,11 +38,11 @@ import {
 } from "@/lib/scraper";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
-import { Header } from "@/components/Header";
 import { Container } from "@/components/Container";
 import { FilterModal } from "@/components/FilterModal";
 import { Spinner } from "@/components/ui/spinner";
 import { Toaster, toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function SearchPage() {
   const { isAuthenticated } = useAuth();
@@ -50,11 +51,14 @@ export default function SearchPage() {
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(mockProducts);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 12;
   const [activePlatformFilters, setActivePlatformFilters] = useState<string[]>([]);
   const [activeGenreFilters, setActiveGenreFilters] = useState<string[]>([]);
   const [activePriceFilters, setActivePriceFilters] = useState<string[]>([]);
   const [activeSourceFilters, setActiveSourceFilters] = useState<string[]>([]);
-  const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc" | "newest">("newest");
+  const [sortOrder, setSortOrder] = useState<"price-asc" | "price-desc" | "newest">("price-asc");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -228,11 +232,23 @@ export default function SearchPage() {
     });
   }, [sortOrder]);
 
+  // Update displayed products when filtered products or page changes
+  useEffect(() => {
+    const endIndex = currentPage * productsPerPage;
+    setDisplayedProducts(filteredProducts.slice(0, endIndex));
+  }, [filteredProducts, currentPage]);
+
+  const loadMore = () => {
+    setCurrentPage(prev => prev + 1);
+  };
+
+  const router = useRouter();
+
   // Handle search form submission
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // Update URL with search query
-    window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
   };
 
   // Toggle platform filter
@@ -298,123 +314,224 @@ export default function SearchPage() {
   };
 
   return (
-    <>
-      {/* Header is sticky at the top, Search Results row is sticky below */}
-      <Header className="mb-0" />
-      <div className="sticky top-[64px] z-40 w-full bg-white flex items-center justify-between px-4 py-4 border-b border-gray-100" style={{background: 'rgba(255,255,255,0.97)'}}>
-        <div className="text-xl font-semibold">
-          {query && `Search Results for "${query}"`}
+    <Container>
+      {/* Results */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-light">Search Results</h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowFilterModal(true)}
+              className="flex items-center gap-1"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+            </Button>
+            <div className="relative">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={() => setSortOrder(sortOrder === "price-asc" ? "price-desc" : sortOrder === "price-desc" ? "newest" : "price-asc")}
+              >
+                <ArrowUpDown className="h-4 w-4" />
+                {sortOrder === "newest" ? "Newest" : sortOrder === "price-asc" ? "Price: Low to High" : "Price: High to Low"}
+              </Button>
+            </div>
+          </div>
         </div>
-        <Button type="button" variant="ghost" size="icon" onClick={() => setShowFilterModal(true)}>
-          <Filter className="h-5 w-5 text-muted-foreground" />
-        </Button>
-      </div>
-
-      <Container>
-        <FilterModal
-          isOpen={showFilterModal}
-          onClose={() => setShowFilterModal(false)}
-          activePlatformFilters={activePlatformFilters}
-          activeGenreFilters={activeGenreFilters}
-          activePriceFilters={activePriceFilters}
-          activeSourceFilters={activeSourceFilters}
-          togglePlatformFilter={togglePlatformFilter}
-          toggleGenreFilter={toggleGenreFilter}
-          togglePriceFilter={togglePriceFilter}
-          toggleSourceFilter={toggleSourceFilter}
-          clearAllFilters={clearAllFilters}
-        />
-        <Toaster 
-          position="top-right"
-          className="md:right-4 md:top-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:top-4"
-        />
-
+        
+        {/* Active filters */}
+        {(activePlatformFilters.length > 0 || 
+          activeGenreFilters.length > 0 || 
+          activePriceFilters.length > 0 || 
+          activeSourceFilters.length > 0) && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {activePlatformFilters.map((filter) => {
+              const platformFilter = platformFilters.find(f => f.query === filter);
+              return (
+                <Button
+                  key={filter}
+                  variant="default"
+                  size="sm"
+                  onClick={() => togglePlatformFilter(filter)}
+                  className="flex items-center gap-1 bg-primary/80 text-xs"
+                >
+                  {platformFilter?.name}
+                  <X className="w-3 h-3 ml-1" />
+                </Button>
+              );
+            })}
+            {activeGenreFilters.map((filter) => {
+              const genreFilter = genreFilters.find(f => f.query === filter);
+              return (
+                <Button
+                  key={filter}
+                  variant="default"
+                  size="sm"
+                  onClick={() => toggleGenreFilter(filter)}
+                  className="flex items-center gap-1 bg-primary/80 text-xs"
+                >
+                  {genreFilter?.name}
+                  <X className="w-3 h-3 ml-1" />
+                </Button>
+              );
+            })}
+            {activePriceFilters.map((filter) => {
+              const priceFilter = priceFilters.find(f => f.query === filter);
+              return (
+                <Button
+                  key={filter}
+                  variant="default"
+                  size="sm"
+                  onClick={() => togglePriceFilter(filter)}
+                  className="flex items-center gap-1 bg-primary/80 text-xs"
+                >
+                  {priceFilter?.name}
+                  <X className="w-3 h-3 ml-1" />
+                </Button>
+              );
+            })}
+            {activeSourceFilters.map((filter) => {
+              const sourceFilter = sourceFilters.find(f => f.query === filter);
+              return (
+                <Button
+                  key={filter}
+                  variant="default"
+                  size="sm"
+                  onClick={() => toggleSourceFilter(filter)}
+                  className="flex items-center gap-1 bg-primary/80 text-xs"
+                >
+                  {sourceFilter?.name}
+                  <X className="w-3 h-3 ml-1" />
+                </Button>
+              );
+            })}
+            {(activePlatformFilters.length > 0 || 
+              activeGenreFilters.length > 0 || 
+              activePriceFilters.length > 0 || 
+              activeSourceFilters.length > 0) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearAllFilters}
+                className="text-xs"
+              >
+                Clear All
+              </Button>
+            )}
+          </div>
+        )}
+        
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-100 rounded-2xl h-64 w-full animate-pulse flex flex-col">
-                <div className="h-40 md:h-64 bg-gray-200 rounded-t-2xl" />
-                <div className="flex gap-2 mt-4 px-4">
-                  <div className="h-6 w-1/3 bg-gray-200 rounded-full" />
-                  <div className="h-6 w-1/4 bg-gray-200 rounded-full ml-auto" />
+          <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex flex-row sm:flex-col mb-2 sm:mb-0">
+                <div className="w-1/3 sm:w-full flex-shrink-0">
+                  <div className="h-20 sm:h-64 bg-gray-100 rounded-[20px]" />
                 </div>
-                <div className="h-4 bg-gray-200 rounded mt-4 mx-4" />
-                <div className="h-4 bg-gray-200 rounded mt-2 mx-4" />
-                <div className="h-4 bg-gray-200 rounded mt-2 mx-4" />
+                <div className="flex-1 pl-3 sm:pl-0 sm:mt-3 space-y-1 sm:space-y-2">
+                  <div className="h-4 w-1/2 bg-gray-100 rounded" />
+                  <div className="h-3 w-3/4 bg-gray-100 rounded" />
+                  <div className="h-3 w-1/4 bg-gray-100 rounded" />
+                </div>
               </div>
             ))}
           </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium mb-2">No results found</h3>
-            <p className="text-muted-foreground mb-6">
-              Try adjusting your search or filters to find what you're looking for.
-            </p>
-          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <Card key={product.id} className="relative flex flex-row sm:flex-col bg-transparent shadow-none p-0 items-stretch">
-                {/* Image section (left on mobile, top on desktop) with container */}
-                <div className="relative flex-shrink-0 w-28 h-28 sm:w-full sm:h-64 flex items-center justify-center">
-                  <div className="bg-white p-0 sm:p-8 rounded-[12px] w-full h-full flex items-center justify-center">
-                    <img
-                      src={product.image}
-                      alt={product.title}
-                      className="w-full h-full object-cover"
-                    />
+          <>
+            <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-6">
+              {displayedProducts.map((product) => (
+                <Card key={product.id} className="flex flex-row sm:flex-col border-0 shadow-none bg-transparent mb-2 sm:mb-0 relative group hover:opacity-95 transition-opacity">
+                  {/* Make entire card clickable */}
+                  <a 
+                    href={product.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 z-0"
+                    aria-label={`View details for ${product.title}`}
+                  />
+                  
+                  {/* Mobile: Left image, desktop: top image */}
+                  <div className="w-1/3 sm:w-full flex-shrink-0">
+                    <div className="bg-white rounded-[20px] p-2 sm:p-8 h-full flex items-center justify-center">
+                      <img
+                        src={product.image}
+                        alt={product.title}
+                        className="w-full h-20 sm:h-48 object-contain"
+                      />
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 text-gray-700 bg-white/80 hover:bg-white"
+                  
+                  {/* Content section */}
+                  <div className="flex-1 pl-3 sm:pl-0 sm:mt-3 flex flex-col justify-between py-0.5">
+                    <div>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <div className="font-light text-base sm:text-base">{product.price}</div>
+                        <div className="text-gray-500 text-xs">{product.source}</div>
+                      </div>
+                      <h2 className="text-xs sm:text-sm font-light mb-0.5 line-clamp-2 sm:line-clamp-none">{product.title}</h2>
+                      <div className="hidden sm:flex sm:items-center sm:gap-2 sm:mt-2">
+                        <span className="px-2 py-1 bg-secondary rounded-full text-xs font-light">
+                          {product.source}
+                        </span>
+                        {product.platform && (
+                          <span className="px-2 py-1 bg-secondary rounded-full text-xs font-light">
+                            {product.platform}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Favorite button - positioned top-left on mobile, top-right on desktop */}
+                  <button
                     onClick={(e) => {
+                      e.stopPropagation();
                       e.preventDefault();
                       handleAddToFavorites(product);
                     }}
-                    aria-label={checkIsFavorited(product.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    className="absolute top-2 left-2 sm:left-auto sm:right-2 p-2 bg-black rounded-full hover:bg-black/80 transition-colors z-10"
                   >
-                    <Heart className={`h-6 w-6 ${checkIsFavorited(product.id) ? 'fill-current text-primary' : ''}`} />
-                  </Button>
-                </div>
-                {/* Details section (right on mobile, below on desktop) */}
-                <div className="flex flex-col justify-between flex-1 px-4 py-2 sm:px-0 sm:py-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-semibold">{product.price}</span>
-                    <span className="rounded-full bg-gray-100 text-xs font-medium px-3 py-1 ml-2">{product.source}</span>
-                  </div>
-                  <div className="mt-1">
-                    <div className="text-sm font-medium mb-1 line-clamp-2">{product.title}</div>
-                    <div className="text-xs text-muted-foreground line-clamp-2 mb-2">{product.description}</div>
-                    <a href={product.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline block mt-2">
-                      Click for details
-                    </a>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+                    <Heart className={cn("h-4 w-4 text-white", {
+                      "text-red-500 fill-red-500": checkIsFavorited(product.id)
+                    })} />
+                  </button>
+                </Card>
+              ))}
+            </div>
+            
+            {/* More Button */}
+            {displayedProducts.length < filteredProducts.length && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={loadMore}
+                  className="px-8 py-2 bg-black hover:bg-black/80 text-white rounded-full text-sm font-light transition-colors"
+                >
+                  More
+                </button>
+              </div>
+            )}
+          </>
         )}
-
-        {/* Sticky, floating search bar at the bottom */}
-        <form 
-          onSubmit={handleSearch}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100vw-32px)] max-w-2xl z-50 flex items-center gap-2 bg-white shadow-lg rounded-full px-4 py-2 border border-[#EEEEEE]"
-          style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' }}
-        >
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Try 'sealed EarthBound SNES' or 'Castlevania PS1'"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="border-none bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 min-w-0"
-          />
-          <Button type="submit" variant="ghost" size="icon">
-            <Search className="h-4 w-4" />
-          </Button>
-        </form>
-      </Container>
-    </>
+      </div>
+      
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        activePlatformFilters={activePlatformFilters}
+        activeGenreFilters={activeGenreFilters}
+        activePriceFilters={activePriceFilters}
+        activeSourceFilters={activeSourceFilters}
+        togglePlatformFilter={togglePlatformFilter}
+        toggleGenreFilter={toggleGenreFilter}
+        togglePriceFilter={togglePriceFilter}
+        toggleSourceFilter={toggleSourceFilter}
+        clearAllFilters={clearAllFilters}
+      />
+    </Container>
   );
 }

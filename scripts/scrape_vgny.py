@@ -149,10 +149,28 @@ def search_vgny(query, platform=None, max_results=16, debug=False):
         for product_elem in product_elements[:max_results]:
             try:
                 # Check if product is out of stock
-                out_of_stock_elem = product_elem.select_one('.sale-flag-side--outstock')
+                is_out_of_stock = False
+                
+                # Check for out-of-stock flag
+                out_of_stock_elem = product_elem.select_one('.sale-flag-side--outstock, .out-of-stock, .sold-out')
                 if out_of_stock_elem:
+                    is_out_of_stock = True
+                
+                # Check for text indicators in the product element
+                product_text = product_elem.text.lower()
+                if "out of stock" in product_text or "sold out" in product_text or "unavailable" in product_text:
+                    is_out_of_stock = True
+                
+                # Check for disabled add-to-cart button
+                add_to_cart_btn = product_elem.select_one('button[disabled], .button--disabled')
+                if add_to_cart_btn:
+                    is_out_of_stock = True
+                
+                if is_out_of_stock:
                     if debug:
-                        print("Skipping out of stock product", file=sys.stderr)
+                        product_name_elem = product_elem.select_one('.card-title a')
+                        product_name = product_name_elem.text.strip() if product_name_elem else "Unknown product"
+                        print(f"Skipping out of stock product: {product_name}", file=sys.stderr)
                     continue
                 
                 # Extract product details
